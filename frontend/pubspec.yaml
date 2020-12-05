@@ -1,0 +1,24 @@
+name: cloudstation
+description: An IDE for CloudState
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_bloc: ^6.1.1
+  expandable: ^4.1.4
+  code_editor: ^1.0.1
+  intersperse: ^1.0.1+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
