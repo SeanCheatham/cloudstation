@@ -7,34 +7,16 @@ class TypeChooser extends StatelessWidget {
   final TypeReference selectedType;
   final Function(TypeReference) onTypeUpdated;
 
-  const TypeChooser(
-      {Key key, this.availableTypes, this.selectedType, this.onTypeUpdated})
-      : super(key: key);
-
-  factory TypeChooser.fromProjectState(
+  TypeChooser(
       {Key key,
-      states.LoadedProjectState state,
+      this.availableTypes,
       TypeReference selectedType,
-      Function(TypeReference) onTypeUpdated}) {
-    final List<TypeReference> availableTypes = [
-      StaticTypeReference(StaticType.string),
-      StaticTypeReference(StaticType.int32),
-      StaticTypeReference(StaticType.int64),
-      StaticTypeReference(StaticType.float),
-      StaticTypeReference(StaticType.double),
-      StaticTypeReference(StaticType.bool),
-    ]..addAll([for (final m in state.models) ModelTypeReference(m.name)]);
-
-    final maybeSelectedType =
-        (selectedType is ListTypeReference || selectedType is MapTypeReference)
+      this.onTypeUpdated})
+      : selectedType = (selectedType is ListTypeReference ||
+                selectedType is MapTypeReference)
             ? selectedType
-            : (availableTypes.contains(selectedType) ? selectedType : null);
-    return TypeChooser(
-        key: key,
-        availableTypes: availableTypes,
-        selectedType: maybeSelectedType,
-        onTypeUpdated: onTypeUpdated);
-  }
+            : (availableTypes.contains(selectedType) ? selectedType : null),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {

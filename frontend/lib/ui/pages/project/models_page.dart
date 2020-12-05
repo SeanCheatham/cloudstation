@@ -35,6 +35,7 @@ class _ModelsPageImplState extends State<ModelsPageImpl> {
   @override
   Widget build(BuildContext context) {
     return LeftRight(
+      leftTitle: "Models",
       onNewItem: () {
         widget.addEvent(events.AddModel());
       },
@@ -146,6 +147,15 @@ class PropertiesEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      children: [
+        buildTable(context),
+        _newPropertyTile,
+      ],
+    );
+  }
+
+  Widget buildTable(BuildContext context) {
     return Table(
       children: [
         for (int idx = 0; idx < properties.length; idx++)
@@ -163,8 +173,8 @@ class PropertiesEditor extends StatelessWidget {
         initialValue: properties[idx].name,
       );
 
-  Widget _propertyTypeEditor(int idx) => TypeChooser.fromProjectState(
-        state: state,
+  Widget _propertyTypeEditor(int idx) => TypeChooser(
+        availableTypes: state.availableTypes,
         selectedType: properties[idx].type,
         onTypeUpdated: (updatedType) =>
             onPropertyUpdated(idx, properties[idx].withType(updatedType)),

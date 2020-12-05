@@ -39,6 +39,7 @@ class _EventSourcedEntitiesPageImplState
   @override
   Widget build(BuildContext context) {
     return LeftRight(
+      leftTitle: "Entities",
       onNewItem: () => widget.addEvent(events.AddEventSourcedEntity()),
       itemCount: widget.state.eventSourcedEntities.length,
       itemBuilder: buildItemTile,
@@ -86,8 +87,8 @@ class EventSourcedEntityEditor extends StatelessWidget {
             Expanded(child: entityTypeEditor()),
           ],
         ),
-        commandHandlersEditor(),
-        eventHandlersEditor(),
+        commandHandlersEditor(context),
+        eventHandlersEditor(context),
       ],
     );
   }
@@ -107,16 +108,17 @@ class EventSourcedEntityEditor extends StatelessWidget {
     return Panel(
       title: "State Type",
       hint: Text(initialEntity.stateType.name),
-      child: TypeChooser.fromProjectState(
-        state: projectState,
+      child: TypeChooser(
+        availableTypes: projectState.availableTypes,
         selectedType: initialEntity.stateType,
         onTypeUpdated: _onEntityTypeChanged,
       ),
     );
   }
 
-  Widget commandHandlersEditor() {
+  Widget commandHandlersEditor(BuildContext context) {
     final child = LeftRight(
+      leftTitle: "Commands",
       currentIndex: initialEntity.selectedCommandHandlerIndex,
       emptySelection: const Center(child: Text("Select a Command")),
       itemBuilder: commandListTile,
@@ -132,53 +134,26 @@ class EventSourcedEntityEditor extends StatelessWidget {
       hint: Text(initialEntity.commandHandlers
           .map((h) => h.commandType.name)
           .join(", ")),
-      child: LimitedBox(child: child, maxHeight: 600),
+      child: LimitedBox(
+        child: child,
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
+      ),
     );
   }
 
   Widget buildCommandEditor(int idx) {
-    final commandTypeEditor = Panel(
-      title: "Command Type",
-      child: TypeChooser.fromProjectState(
-        state: projectState,
-        selectedType: initialEntity.commandHandlers[idx].commandType,
-        onTypeUpdated: (updatedType) => _onCommandTypeChanged(idx, updatedType),
-      ),
-    );
-    final responseTypeEditor = Panel(
-      title: "Response Type",
-      child: TypeChooser.fromProjectState(
-        state: projectState,
-        selectedType: initialEntity.commandHandlers[idx].responseType,
-        onTypeUpdated: (updatedType) =>
-            _onCommandResponseTypeChanged(idx, updatedType),
-      ),
-    );
-
-    final codeEditor = Panel(
-      title: "Code",
-      child: SimpleCodeEditor(
-        code: initialEntity.commandHandlers[idx].code,
-        language: "scala",
-        onCodeChanged: (_, newCode) => _onCommandCodeChanged(idx, newCode),
-      ),
-    );
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(child: commandTypeEditor),
-            Expanded(child: responseTypeEditor),
-          ],
-        ),
-        codeEditor,
-      ],
+    return CommandEditor(
+      commandHandler: initialEntity.commandHandlers[idx],
+      stateType: initialEntity.stateType,
+      onCommandUpdated: (updated) =>
+          onEntityUpdated(initialEntity..commandHandlers[idx] = updated),
+      availableTypes: projectState.availableTypes,
     );
   }
 
-  Widget eventHandlersEditor() {
+  Widget eventHandlersEditor(BuildContext context) {
     final child = LeftRight(
+      leftTitle: "Events",
       currentIndex: initialEntity.selectedEventHandlerIndex,
       emptySelection: const Center(child: Text("Select an Event Handler")),
       itemBuilder: eventListTile,
@@ -194,34 +169,20 @@ class EventSourcedEntityEditor extends StatelessWidget {
           .map((h) => h.commandType.name)
           .join(", ")),
       initiallyExpanded: initialEntity.selectedEventHandlerIndex != null,
-      child: LimitedBox(child: child, maxHeight: 600),
+      child: LimitedBox(
+        child: child,
+        maxHeight: MediaQuery.of(context).size.height * 0.8,
+      ),
     );
   }
 
   Widget buildEventEditor(int idx) {
-    final eventTypeEditor = Panel(
-      title: "Event Type",
-      child: TypeChooser.fromProjectState(
-        state: projectState,
-        selectedType: initialEntity.eventHandlers[idx].eventType,
-        onTypeUpdated: (updatedType) => _onEventTypeChanged(idx, updatedType),
-      ),
-    );
-
-    final codeEditor = Panel(
-      title: "Code",
-      child: SimpleCodeEditor(
-        code: initialEntity.eventHandlers[idx].code,
-        language: "scala",
-        onCodeChanged: (_, newCode) => _onEventCodeChanged(idx, newCode),
-      ),
-    );
-
-    return Column(
-      children: [
-        eventTypeEditor,
-        codeEditor,
-      ],
+    return EventHandlerEditor(
+      eventHandler: initialEntity.eventHandlers[idx],
+      stateType: initialEntity.stateType,
+      onEventUpdated: (updated) =>
+          onEntityUpdated(initialEntity..eventHandlers[idx] = updated),
+      availableTypes: projectState.availableTypes,
     );
   }
 
@@ -260,24 +221,6 @@ class EventSourcedEntityEditor extends StatelessWidget {
     );
   }
 
-  _onCommandCodeChanged(int idx, String updatedCode) {
-    onEntityUpdated(initialEntity
-      ..commandHandlers[idx] =
-          initialEntity.commandHandlers[idx].withCode(updatedCode));
-  }
-
-  _onCommandTypeChanged(int idx, TypeReference updatedType) {
-    onEntityUpdated(initialEntity
-      ..commandHandlers[idx] =
-          initialEntity.commandHandlers[idx].withCommandType(updatedType));
-  }
-
-  _onCommandResponseTypeChanged(int idx, TypeReference updatedType) {
-    onEntityUpdated(initialEntity
-      ..commandHandlers[idx] =
-          initialEntity.commandHandlers[idx].withResponseType(updatedType));
-  }
-
   _onEventHandlerSelected(int idx) {
     onEntityUpdated(initialEntity.withSelectedEventHandlerIndex(idx));
   }
@@ -293,16 +236,148 @@ class EventSourcedEntityEditor extends StatelessWidget {
         ),
     );
   }
+}
 
-  _onEventTypeChanged(int idx, TypeReference updatedType) {
-    onEntityUpdated(initialEntity
-      ..eventHandlers[idx] =
-          initialEntity.eventHandlers[idx].withEventType(updatedType));
+class CommandEditor extends StatelessWidget {
+  final CommandHandler commandHandler;
+  final TypeReference stateType;
+  final Function(CommandHandler) onCommandUpdated;
+  final List<TypeReference> availableTypes;
+
+  const CommandEditor(
+      {Key key,
+      this.commandHandler,
+      this.stateType,
+      this.onCommandUpdated,
+      this.availableTypes})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final commandTypeEditor = Panel(
+      title: "Command Type",
+      child: TypeChooser(
+        availableTypes: availableTypes,
+        selectedType: commandHandler.commandType,
+        onTypeUpdated: (updatedType) => _onCommandTypeChanged(updatedType),
+      ),
+    );
+    final responseTypeEditor = Panel(
+      title: "Response Type",
+      child: TypeChooser(
+        availableTypes: availableTypes,
+        selectedType: commandHandler.responseType,
+        onTypeUpdated: (updatedType) =>
+            _onCommandResponseTypeChanged(updatedType),
+      ),
+    );
+
+    final codeEditor = Panel(
+      title: "Code",
+      child: MultiCodeEditor(language: "scala", items: [
+        ReadOnlyCodeItem(
+          [
+            "class ${commandHandler.commandType.name}Handler {",
+            "",
+            "    def apply(state: ${stateType.name}, command: ${commandHandler.commandType.name}): Future[${commandHandler.responseType.name}] = {"
+          ].join("\n"),
+        ),
+        WritableCodeItem(commandHandler.code,
+            (_, newCode) => _onCommandCodeChanged(newCode)),
+        ReadOnlyCodeItem(
+          [
+            "    }",
+            "}",
+          ].join("\n"),
+        )
+      ]),
+    );
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: commandTypeEditor),
+            Expanded(child: responseTypeEditor),
+          ],
+        ),
+        codeEditor,
+      ],
+    );
   }
 
-  _onEventCodeChanged(int idx, String updatedCode) {
-    onEntityUpdated(initialEntity
-      ..eventHandlers[idx] =
-          initialEntity.eventHandlers[idx].withCode(updatedCode));
+  _onCommandCodeChanged(String updatedCode) {
+    onCommandUpdated(commandHandler.withCode(updatedCode));
+  }
+
+  _onCommandTypeChanged(TypeReference updatedType) {
+    onCommandUpdated(commandHandler.withCommandType(updatedType));
+  }
+
+  _onCommandResponseTypeChanged(TypeReference updatedType) {
+    onCommandUpdated(commandHandler.withResponseType(updatedType));
+  }
+}
+
+class EventHandlerEditor extends StatelessWidget {
+  final EventHandler eventHandler;
+  final TypeReference stateType;
+  final Function(EventHandler) onEventUpdated;
+  final List<TypeReference> availableTypes;
+
+  const EventHandlerEditor(
+      {Key key,
+      this.eventHandler,
+      this.stateType,
+      this.onEventUpdated,
+      this.availableTypes})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final eventTypeEditor = Panel(
+      title: "Event Type",
+      child: TypeChooser(
+        availableTypes: availableTypes,
+        selectedType: eventHandler.eventType,
+        onTypeUpdated: (updatedType) => _onEventTypeChanged(updatedType),
+      ),
+    );
+
+    final codeEditor = Panel(
+      title: "Code",
+      child: MultiCodeEditor(language: "scala", items: [
+        ReadOnlyCodeItem(
+          [
+            "class ${eventHandler.eventType.name}Handler {",
+            "",
+            "    def apply(state: ${stateType.name}, event: ${eventHandler.eventType.name}): ${stateType.name} = {"
+          ].join("\n"),
+        ),
+        WritableCodeItem(
+            eventHandler.code, (_, newCode) => _onEventCodeChanged(newCode)),
+        ReadOnlyCodeItem(
+          [
+            "    }",
+            "}",
+          ].join("\n"),
+        )
+      ]),
+    );
+
+    return Column(
+      children: [
+        eventTypeEditor,
+        codeEditor,
+      ],
+    );
+  }
+
+  _onEventTypeChanged(TypeReference updatedType) {
+    onEventUpdated(eventHandler.withEventType(updatedType));
+  }
+
+  _onEventCodeChanged(String updatedCode) {
+    onEventUpdated(eventHandler.withCode(updatedCode));
   }
 }

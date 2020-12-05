@@ -1,6 +1,8 @@
+import 'package:cloudstation/ui/widgets/headers.dart';
 import 'package:flutter/material.dart';
 
 class LeftRight extends StatefulWidget {
+  final String leftTitle;
   final Function() onNewItem;
   final int itemCount;
   final Function(BuildContext, int) itemBuilder;
@@ -12,6 +14,7 @@ class LeftRight extends StatefulWidget {
 
   const LeftRight({
     Key key,
+    @required this.leftTitle,
     @required this.onNewItem,
     @required this.itemCount,
     @required this.itemBuilder,
@@ -31,30 +34,44 @@ class _LeftRightState extends State<LeftRight> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        LimitedBox(
-            maxWidth: widget.leftColumnMaxWidth, child: itemsList(context)),
+        LimitedBox(maxWidth: widget.leftColumnMaxWidth, child: left(context)),
         VerticalDivider(),
         Expanded(child: body(context)),
       ],
     );
   }
 
+  Widget left(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          child: H1(widget.leftTitle),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        ),
+        Flexible(child: itemsList(context)),
+        _addItemTile,
+        Spacer(),
+      ],
+    );
+  }
+
   Widget itemsList(BuildContext context) {
     return ListView.builder(
-      itemCount: widget.itemCount + 1,
-      itemBuilder: (context, idx) => idx == widget.itemCount
-          ? _addItemTile
-          : ListTile(
-              title: widget.itemBuilder(context, idx),
-              onTap: () => widget.itemSelected(idx),
-            ),
+      itemCount: widget.itemCount,
+      itemBuilder: (context, idx) => ListTile(
+        title: widget.itemBuilder(context, idx),
+        onTap: () => widget.itemSelected(idx),
+      ),
     );
   }
 
   Widget get _addItemTile {
-    return IconButton(
-      icon: Icon(Icons.add),
-      onPressed: widget.onNewItem,
+    return Center(
+      child: IconButton(
+        icon: Icon(Icons.add),
+        onPressed: widget.onNewItem,
+      ),
     );
   }
 

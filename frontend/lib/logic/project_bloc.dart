@@ -20,34 +20,36 @@ final mockLoadProject = events.LoadProject(
     Model(
       "ShoppingCartState",
       [
-        ModelProperty("property1", StaticTypeReference(StaticType.string)),
-        ModelProperty("property2", StaticTypeReference(StaticType.int32)),
+        ModelProperty(
+            "cartItems", ListTypeReference(ModelTypeReference("CartItem"))),
       ],
     ),
     Model(
       "AddCartItemCommand",
       [
-        ModelProperty("itemId", StaticTypeReference(StaticType.string)),
-        ModelProperty("count", StaticTypeReference(StaticType.int32)),
-        ModelProperty("price", StaticTypeReference(StaticType.double)),
+        ModelProperty("cartItem", ModelTypeReference("CartItem")),
       ],
     ),
     Model(
       "CartItemAddedEvent",
       [
-        ModelProperty("itemId", StaticTypeReference(StaticType.string)),
-        ModelProperty("count", StaticTypeReference(StaticType.int32)),
-        ModelProperty("price", StaticTypeReference(StaticType.double)),
+        ModelProperty("cartItem", ModelTypeReference("CartItem")),
       ],
     ),
     Model(
       "AddCartItemResponse",
       [
+        ModelProperty("success", StaticTypeReference(StaticType.bool)),
+      ],
+    ),
+    Model(
+      "CartItem",
+      [
         ModelProperty("itemId", StaticTypeReference(StaticType.string)),
         ModelProperty("count", StaticTypeReference(StaticType.int32)),
         ModelProperty("price", StaticTypeReference(StaticType.double)),
       ],
-    ),
+    )
   ],
   [
     EventSourcedEntity(
@@ -57,27 +59,13 @@ final mockLoadProject = events.LoadProject(
         CommandHandler(
           ModelTypeReference("AddCartItemCommand"),
           ModelTypeReference("AddCartItemResponse"),
-          [
-            "class AddCartItemCommandHandler {",
-            "",
-            "  def apply(state: ShoppingCartState, command: AddCartItemCommand): Future[AddCartItemResponse] =",
-            "    ???",
-            "",
-            "}"
-          ].join("\n"),
+          "        ???",
         )
       ],
       [
         EventHandler(
           ModelTypeReference("CartItemAddedEvent"),
-          [
-            "class CartItemAddedEventHandler {",
-            "",
-            "  def apply(state: ShoppingCartState, event: CartItemAddedEvent): ShoppingCartState =",
-            "    ???",
-            "",
-            "}"
-          ].join("\n"),
+          "        ???",
         ),
       ],
       0,
@@ -91,14 +79,7 @@ final mockLoadProject = events.LoadProject(
       [
         CRDTCommandHandler(
           ModelTypeReference("AddCartItemCommand"),
-          [
-            "class AddCartItemCommandHandler {",
-            "",
-            "  def apply(state: ShoppingCartState, command: AddCartItemCommand): GCounter =",
-            "    ???",
-            "",
-            "}"
-          ].join("\n"),
+          "        ???",
         )
       ],
       0,

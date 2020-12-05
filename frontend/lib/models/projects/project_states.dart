@@ -107,6 +107,15 @@ class LoadedProjectState extends ProjectState {
     yield clone();
   }
 
+  List<TypeReference> get availableTypes => [
+        StaticTypeReference(StaticType.string),
+        StaticTypeReference(StaticType.int32),
+        StaticTypeReference(StaticType.int64),
+        StaticTypeReference(StaticType.float),
+        StaticTypeReference(StaticType.double),
+        StaticTypeReference(StaticType.bool),
+      ]..addAll(models.map((m) => ModelTypeReference(m.name)));
+
   LoadedProjectState clone() => LoadedProjectState(
         projectId,
         List.of(models),

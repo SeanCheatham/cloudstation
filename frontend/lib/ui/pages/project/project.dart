@@ -41,7 +41,7 @@ class _ProjectPageState extends State<ProjectPage> {
   @override
   Widget build(BuildContext context) {
     final scaffold = Scaffold(
-        appBar: AppBar(title: Text(_title)),
+        appBar: buildAppBar(),
         body: _pageBody(context),
         drawer: ProjectPageDrawer(
           projectPageId: _currentProjectPageId,
@@ -55,6 +55,14 @@ class _ProjectPageState extends State<ProjectPage> {
       child: scaffold,
     );
   }
+
+  AppBar buildAppBar() => AppBar(
+        title: Row(children: [
+          Text(widget.projectId),
+          Icon(Icons.arrow_right_rounded),
+          Text(_pageTitle),
+        ]),
+      );
 
   Widget _pageBody(BuildContext context) {
     return BlocBuilder<ProjectBloc, states.ProjectState>(
@@ -88,7 +96,7 @@ class _ProjectPageState extends State<ProjectPage> {
     return _unloadedPageBody;
   }
 
-  String get _title {
+  String get _pageTitle {
     switch (_currentProjectPageId) {
       case ProjectPageId.projectConfiguration:
         return "Project Configuration";

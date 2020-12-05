@@ -16,7 +16,7 @@ class CloudstationApp extends StatelessWidget {
       ),
       home: ProjectPage(
         projectId: "my-cloudflow-app",
-        initialProjectPageId: ProjectPageId.models,
+        initialProjectPageId: ProjectPageId.eventSourcedEntities,
       ),
     );
   }

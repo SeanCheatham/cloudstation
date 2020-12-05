@@ -39,6 +39,7 @@ class _CRDTEntitiesPageImplState extends State<CRDTEntitiesPageImpl> {
   @override
   Widget build(BuildContext context) {
     return LeftRight(
+      leftTitle: "Entites",
       onNewItem: () => widget.addEvent(events.AddCRDTEntity()),
       itemCount: widget.state.crdtEntities.length,
       itemBuilder: buildItemTile,
@@ -114,6 +115,7 @@ class CRDTEntityEditor extends StatelessWidget {
 
   Widget commandHandlersEditor() {
     final child = LeftRight(
+      leftTitle: "Commands",
       currentIndex: initialEntity.selectedCommandHandlerIndex,
       emptySelection: const Center(child: Text("Select a Command")),
       itemBuilder: commandListTile,
@@ -134,29 +136,12 @@ class CRDTEntityEditor extends StatelessWidget {
   }
 
   Widget buildCommandEditor(int idx) {
-    final commandTypeEditor = Panel(
-      title: "Command Type",
-      child: TypeChooser.fromProjectState(
-        state: projectState,
-        selectedType: initialEntity.commandHandlers[idx].commandType,
-        onTypeUpdated: (updatedType) => _onCommandTypeChanged(idx, updatedType),
-      ),
-    );
-
-    final codeEditor = Panel(
-      title: "Code",
-      child: SimpleCodeEditor(
-        code: initialEntity.commandHandlers[idx].code,
-        language: "scala",
-        onCodeChanged: (_, newCode) => _onCommandCodeChanged(idx, newCode),
-      ),
-    );
-
-    return Column(
-      children: [
-        commandTypeEditor,
-        codeEditor,
-      ],
+    return CommandEditor(
+      commandHandler: initialEntity.commandHandlers[idx],
+      onCommandUpdated: (updated) =>
+          onEntityUpdated(initialEntity..commandHandlers[idx] = updated),
+      crdt: initialEntity.crdt,
+      availableTypes: projectState.availableTypes,
     );
   }
 
@@ -188,16 +173,67 @@ class CRDTEntityEditor extends StatelessWidget {
         ),
     );
   }
+}
 
-  _onCommandCodeChanged(int idx, String updatedCode) {
-    onEntityUpdated(initialEntity
-      ..commandHandlers[idx] =
-          initialEntity.commandHandlers[idx].withCode(updatedCode));
+class CommandEditor extends StatelessWidget {
+  final CRDTCommandHandler commandHandler;
+  final Function(CRDTCommandHandler) onCommandUpdated;
+  final CRDT crdt;
+  final List<TypeReference> availableTypes;
+
+  const CommandEditor(
+      {Key key,
+      this.commandHandler,
+      this.onCommandUpdated,
+      this.crdt,
+      this.availableTypes})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final commandTypeEditor = Panel(
+      title: "Command Type",
+      child: TypeChooser(
+        availableTypes: availableTypes,
+        selectedType: commandHandler.commandType,
+        onTypeUpdated: (updatedType) => _onCommandTypeChanged(updatedType),
+      ),
+    );
+
+    final codeEditor = Panel(
+      title: "Code",
+      child: MultiCodeEditor(language: "scala", items: [
+        ReadOnlyCodeItem(
+          [
+            "class ${commandHandler.commandType.name}Handler {",
+            "",
+            "    def apply(state: ${crdt.name}, command: ${commandHandler.commandType.name}): ${crdt.name} = {"
+          ].join("\n"),
+        ),
+        WritableCodeItem(commandHandler.code,
+            (_, newCode) => _onCommandCodeChanged(newCode)),
+        ReadOnlyCodeItem(
+          [
+            "    }",
+            "}",
+          ].join("\n"),
+        )
+      ]),
+    );
+
+    return Column(
+      children: [
+        commandTypeEditor,
+        codeEditor,
+      ],
+    );
   }
 
-  _onCommandTypeChanged(int idx, TypeReference updatedType) {
-    onEntityUpdated(initialEntity
-      ..commandHandlers[idx] =
-          initialEntity.commandHandlers[idx].withCommandType(updatedType));
+  _onCommandCodeChanged(String updatedCode) {
+    commandHandler.withCode(updatedCode);
+  }
+
+  _onCommandTypeChanged(TypeReference updatedType) {
+    commandHandler.withCommandType(updatedType);
   }
 }
