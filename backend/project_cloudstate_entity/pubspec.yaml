@@ -1,0 +1,14 @@
+name: project_cloudstate_entity
+description: A CloudState entity representing a developer project.
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  cloudstate: ^0.5.8
+  async: ^2.2.0
+  grpc: ^2.1.3
+  protobuf: ^1.0.1

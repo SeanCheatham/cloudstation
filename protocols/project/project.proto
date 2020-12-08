@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "cloudstate/entity_key.proto";
+import "cloudstate/eventing.proto";
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/api/httpbody.proto";
+
+import "domain.proto";
+
+package cloudstation.project;
+
+// Commands
+message GetProjectCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+}
+message GetProjectResponse {
+    bool success = 1;
+    string message = 2;
+    cloudstation.project.Project project = 3;
+}
+
+message AddModelCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    cloudstation.project.Model model = 2;
+}
+message AddModelResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message RemoveModelCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string name = 2;
+}
+message RemoveModelResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message UpdateModelCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string originalModelName = 2;
+    cloudstation.project.Model updatedModel = 3;
+}
+message UpdateModelResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+
+service ProjectService {
+    rpc AddModel(AddModelCommand) returns (AddModelResponse);
+
+    rpc RemoveModel(RemoveModelCommand) returns (RemoveModelResponse);
+
+    rpc GetProject(GetProjectCommand) returns (GetProjectResponse);
+}
