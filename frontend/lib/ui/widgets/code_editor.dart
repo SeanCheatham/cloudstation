@@ -54,10 +54,17 @@ class MultiCodeEditor extends StatelessWidget {
               language: language,
             )
           else if (item is WritableCodeItem)
-            SimpleCodeEditor(
-              code: item.code,
-              language: language,
-              onCodeChanged: item.onCodeChanged,
+            Container(
+              decoration: BoxDecoration(
+                  border: Border.symmetric(
+                      horizontal: BorderSide(
+                color: Colors.lightBlue,
+              ))),
+              child: SimpleCodeEditor(
+                code: item.code,
+                language: language,
+                onCodeChanged: item.onCodeChanged,
+              ),
             )
       ],
     );

@@ -159,10 +159,13 @@ class PropertiesEditor extends StatelessWidget {
     return Table(
       children: [
         for (int idx = 0; idx < properties.length; idx++)
-          TableRow(
-              children: [_propertyNameEditor(idx), _propertyTypeEditor(idx)])
+          TableRow(children: [
+            _propertyNameEditor(idx),
+            _propertyTypeEditor(idx),
+            _propertyDeleteButton(idx),
+          ])
       ],
-      columnWidths: {1: IntrinsicColumnWidth()},
+      columnWidths: {1: IntrinsicColumnWidth(), 2: IntrinsicColumnWidth()},
     );
   }
 
@@ -178,6 +181,13 @@ class PropertiesEditor extends StatelessWidget {
         selectedType: properties[idx].type,
         onTypeUpdated: (updatedType) =>
             onPropertyUpdated(idx, properties[idx].withType(updatedType)),
+      );
+
+  Widget _propertyDeleteButton(int idx) => IconButton(
+        icon: Icon(Icons.delete),
+        onPressed: () {
+          onPropertyRemoved(idx);
+        },
       );
 
   Widget get _newPropertyTile {
