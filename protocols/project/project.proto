@@ -11,23 +11,22 @@ import "domain.proto";
 
 package cloudstation.project;
 
-// Commands
+// Commands and Responses
 message GetProjectCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
 }
 message GetProjectResponse {
-    bool success = 1;
-    string message = 2;
-    cloudstation.project.Project project = 3;
+    Result result = 1;
+    cloudstation.project.Project project = 2;
 }
+
 
 message AddModelCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
     cloudstation.project.Model model = 2;
 }
 message AddModelResponse {
-    bool success = 1;
-    string message = 2;
+    Result result = 1;
 }
 
 message RemoveModelCommand {
@@ -35,25 +34,199 @@ message RemoveModelCommand {
     string name = 2;
 }
 message RemoveModelResponse {
-    bool success = 1;
-    string message = 2;
+    Result result = 1;
 }
 
 message UpdateModelCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
-    string originalModelName = 2;
+    string originalName = 2;
     cloudstation.project.Model updatedModel = 3;
 }
 message UpdateModelResponse {
+    Result result = 1;
+}
+
+
+message AddEventSourcedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    cloudstation.project.EventSourcedEntity entity = 2;
+}
+message AddEventSourcedEntityResponse {
+    Result result = 1;
+}
+
+message RemoveEventSourcedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string name = 2;
+}
+message RemoveEventSourcedEntityResponse {
+    Result result = 1;
+}
+
+message UpdateEventSourcedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string originalName = 2;
+    cloudstation.project.EventSourcedEntity entity = 3;
+}
+message UpdateEventSourcedEntityResponse {
+    Result result = 1;
+}
+
+
+message AddReplicatedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    cloudstation.project.ReplicatedEntity entity = 2;
+}
+message AddReplicatedEntityResponse {
+    Result result = 1;
+}
+
+message RemoveReplicatedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string name = 2;
+}
+message RemoveReplicatedEntityResponse {
+    Result result = 1;
+}
+
+message UpdateReplicatedEntityCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string originalName = 2;
+    cloudstation.project.ReplicatedEntity entity = 3;
+}
+message UpdateReplicatedEntityResponse {
+    Result result = 1;
+}
+
+
+message AddActionCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    cloudstation.project.Action entity = 2;
+}
+message AddActionResponse {
+    Result result = 1;
+}
+
+message RemoveActionCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string name = 2;
+}
+message RemoveActionResponse {
+    Result result = 1;
+}
+
+message UpdateActionCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    string originalName = 2;
+    cloudstation.project.Action entity = 3;
+}
+message UpdateActionResponse {
+    Result result = 1;
+}
+
+message VerifyCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    repeated string eventSourcedEntityNames = 2;
+    repeated string replicatedEntityNames = 3;
+    repeated string actionNames = 4;
+}
+message VerifyResponse {
+    map<string, VerificationResult> eventSourcedEntityVerifications = 1;
+    map<string, VerificationResult> replicatedEntityVerifications = 2;
+    map<string, VerificationResult> actionVerifications = 3;
+    message VerificationResult {
+        bool success = 1;
+        repeated string errors = 2;
+    }
+}
+
+message DeployCommand {
+    string project_id = 1 [(.cloudstate.entity_key) = true];
+    repeated string eventSourcedEntityNames = 2;
+    repeated string replicatedEntityNames = 3;
+    repeated string actionNames = 4;
+}
+message DeployResponse {
+    map<string, DeployResult> eventSourcedEntityResults = 1;
+    map<string, DeployResult> replicatedEntityResults = 2;
+    map<string, DeployResult> actionResults = 3;
+    message DeployResult {
+        bool success = 1;
+        repeated string errors = 2;
+    }
+}
+
+// Events
+message ModelAddedEvent {
+    cloudstation.project.Model model = 1;
+}
+message ModelRemovedEvent {
+    string name = 1;
+}
+message ModelUpdatedEvent {
+    string originalName = 1;
+    cloudstation.project.Model updatedModel = 2;
+}
+message EventSourcedEntityAddedEvent {
+    cloudstation.project.EventSourcedEntity entity = 1;
+}
+message EventSourcedEntityRemovedEvent {
+    string name = 1;
+}
+message EventSourcedEntityUpdatedEvent {
+    string originalName = 1;
+    cloudstation.project.EventSourcedEntity entity = 2;
+}
+message ReplicatedEntityAddedEvent {
+    cloudstation.project.ReplicatedEntity entity = 1;
+}
+message ReplicatedEntityRemovedEvent {
+    string name = 1;
+}
+message ReplicatedEntityUpdatedEvent {
+    string originalName = 1;
+    cloudstation.project.ReplicatedEntity entity = 2;
+}
+message ActionAddedEvent {
+    cloudstation.project.Action action = 1;
+}
+message ActionRemovedEvent {
+    string name = 1;
+}
+message ActionUpdatedEvent {
+    string originalName = 1;
+    cloudstation.project.Action action = 2;
+}
+
+
+// Misc
+
+message Result {
     bool success = 1;
     string message = 2;
 }
 
 
 service ProjectService {
-    rpc AddModel(AddModelCommand) returns (AddModelResponse);
-
-    rpc RemoveModel(RemoveModelCommand) returns (RemoveModelResponse);
-
     rpc GetProject(GetProjectCommand) returns (GetProjectResponse);
+    
+    rpc AddModel(AddModelCommand) returns (AddModelResponse);
+    rpc RemoveModel(RemoveModelCommand) returns (RemoveModelResponse);
+    rpc UpdateModel(UpdateModelCommand) returns (UpdateModelResponse);
+    
+    rpc AddEventSourcedEntity(AddEventSourcedEntityCommand) returns (AddEventSourcedEntityResponse);
+    rpc RemoveEventSourcedEntity(RemoveEventSourcedEntityCommand) returns (RemoveEventSourcedEntityResponse);
+    rpc UpdateEventSourcedEntity(UpdateEventSourcedEntityCommand) returns (UpdateEventSourcedEntityResponse);
+    
+    rpc AddReplicatedEntity(AddReplicatedEntityCommand) returns (AddReplicatedEntityResponse);
+    rpc RemoveReplicatedEntity(RemoveReplicatedEntityCommand) returns (RemoveReplicatedEntityResponse);
+    rpc UpdateReplicatedEntity(UpdateReplicatedEntityCommand) returns (UpdateReplicatedEntityResponse);
+    
+    rpc AddAction(AddActionCommand) returns (AddActionResponse);
+    rpc RemoveAction(RemoveActionCommand) returns (RemoveActionResponse);
+    rpc UpdateAction(UpdateActionCommand) returns (UpdateActionResponse);
+ 
+    rpc Verify(VerifyCommand) returns (VerifyResponse);
+    rpc Deploy(DeployCommand) returns (DeployResponse);
+
 }

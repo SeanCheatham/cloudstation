@@ -23,7 +23,8 @@ const Project$json = const {
     const {'1': 'project_id', '3': 1, '4': 1, '5': 9, '10': 'projectId'},
     const {'1': 'models', '3': 2, '4': 3, '5': 11, '6': '.cloudstation.project.Model', '10': 'models'},
     const {'1': 'eventSourcedEntities', '3': 3, '4': 3, '5': 11, '6': '.cloudstation.project.EventSourcedEntity', '10': 'eventSourcedEntities'},
-    const {'1': 'crdtEntities', '3': 4, '4': 3, '5': 11, '6': '.cloudstation.project.CRDTEntity', '10': 'crdtEntities'},
+    const {'1': 'replicatedEntities', '3': 4, '4': 3, '5': 11, '6': '.cloudstation.project.ReplicatedEntity', '10': 'replicatedEntities'},
+    const {'1': 'actions', '3': 5, '4': 3, '5': 11, '6': '.cloudstation.project.Action', '10': 'actions'},
   ],
 };
 
@@ -132,26 +133,26 @@ const EventSourcedEntity_EventHandler_CodeBlocksEntry$json = const {
   '7': const {'7': true},
 };
 
-const CRDTEntity$json = const {
-  '1': 'CRDTEntity',
+const ReplicatedEntity$json = const {
+  '1': 'ReplicatedEntity',
   '2': const [
     const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
-    const {'1': 'crdt', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT', '10': 'crdt'},
-    const {'1': 'commandHandlers', '3': 3, '4': 3, '5': 11, '6': '.cloudstation.project.CRDTEntity.CommandHandler', '10': 'commandHandlers'},
+    const {'1': 'ReplicatedData', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData', '10': 'ReplicatedData'},
+    const {'1': 'commandHandlers', '3': 3, '4': 3, '5': 11, '6': '.cloudstation.project.ReplicatedEntity.CommandHandler', '10': 'commandHandlers'},
   ],
-  '3': const [CRDTEntity_CommandHandler$json],
+  '3': const [ReplicatedEntity_CommandHandler$json],
 };
 
-const CRDTEntity_CommandHandler$json = const {
+const ReplicatedEntity_CommandHandler$json = const {
   '1': 'CommandHandler',
   '2': const [
     const {'1': 'commandType', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'commandType'},
-    const {'1': 'codeBlocks', '3': 2, '4': 3, '5': 11, '6': '.cloudstation.project.CRDTEntity.CommandHandler.CodeBlocksEntry', '10': 'codeBlocks'},
+    const {'1': 'codeBlocks', '3': 2, '4': 3, '5': 11, '6': '.cloudstation.project.ReplicatedEntity.CommandHandler.CodeBlocksEntry', '10': 'codeBlocks'},
   ],
-  '3': const [CRDTEntity_CommandHandler_CodeBlocksEntry$json],
+  '3': const [ReplicatedEntity_CommandHandler_CodeBlocksEntry$json],
 };
 
-const CRDTEntity_CommandHandler_CodeBlocksEntry$json = const {
+const ReplicatedEntity_CommandHandler_CodeBlocksEntry$json = const {
   '1': 'CodeBlocksEntry',
   '2': const [
     const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
@@ -160,58 +161,58 @@ const CRDTEntity_CommandHandler_CodeBlocksEntry$json = const {
   '7': const {'7': true},
 };
 
-const CRDT$json = const {
-  '1': 'CRDT',
+const ReplicatedData$json = const {
+  '1': 'ReplicatedData',
   '2': const [
-    const {'1': 'gCounter', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.GCounter', '9': 0, '10': 'gCounter'},
-    const {'1': 'pnCounter', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.PNCounter', '9': 0, '10': 'pnCounter'},
-    const {'1': 'gSet', '3': 3, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.GSet', '9': 0, '10': 'gSet'},
-    const {'1': 'orSet', '3': 4, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.ORSet', '9': 0, '10': 'orSet'},
-    const {'1': 'flag', '3': 5, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.Flag', '9': 0, '10': 'flag'},
-    const {'1': 'lwwRegister', '3': 6, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.LWWRegister', '9': 0, '10': 'lwwRegister'},
-    const {'1': 'orMap', '3': 7, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.ORMap', '9': 0, '10': 'orMap'},
-    const {'1': 'vote', '3': 8, '4': 1, '5': 11, '6': '.cloudstation.project.CRDT.Vote', '9': 0, '10': 'vote'},
+    const {'1': 'gCounter', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.GCounter', '9': 0, '10': 'gCounter'},
+    const {'1': 'pnCounter', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.PNCounter', '9': 0, '10': 'pnCounter'},
+    const {'1': 'gSet', '3': 3, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.GSet', '9': 0, '10': 'gSet'},
+    const {'1': 'orSet', '3': 4, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.ORSet', '9': 0, '10': 'orSet'},
+    const {'1': 'flag', '3': 5, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.Flag', '9': 0, '10': 'flag'},
+    const {'1': 'lwwRegister', '3': 6, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.LWWRegister', '9': 0, '10': 'lwwRegister'},
+    const {'1': 'orMap', '3': 7, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.ORMap', '9': 0, '10': 'orMap'},
+    const {'1': 'vote', '3': 8, '4': 1, '5': 11, '6': '.cloudstation.project.ReplicatedData.Vote', '9': 0, '10': 'vote'},
   ],
-  '3': const [CRDT_GCounter$json, CRDT_PNCounter$json, CRDT_GSet$json, CRDT_ORSet$json, CRDT_Flag$json, CRDT_LWWRegister$json, CRDT_ORMap$json, CRDT_Vote$json],
+  '3': const [ReplicatedData_GCounter$json, ReplicatedData_PNCounter$json, ReplicatedData_GSet$json, ReplicatedData_ORSet$json, ReplicatedData_Flag$json, ReplicatedData_LWWRegister$json, ReplicatedData_ORMap$json, ReplicatedData_Vote$json],
   '8': const [
-    const {'1': 'crdtType'},
+    const {'1': 'replicatedType'},
   ],
 };
 
-const CRDT_GCounter$json = const {
+const ReplicatedData_GCounter$json = const {
   '1': 'GCounter',
 };
 
-const CRDT_PNCounter$json = const {
+const ReplicatedData_PNCounter$json = const {
   '1': 'PNCounter',
 };
 
-const CRDT_GSet$json = const {
+const ReplicatedData_GSet$json = const {
   '1': 'GSet',
   '2': const [
     const {'1': 'valueType', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'valueType'},
   ],
 };
 
-const CRDT_ORSet$json = const {
+const ReplicatedData_ORSet$json = const {
   '1': 'ORSet',
   '2': const [
     const {'1': 'valueType', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'valueType'},
   ],
 };
 
-const CRDT_Flag$json = const {
+const ReplicatedData_Flag$json = const {
   '1': 'Flag',
 };
 
-const CRDT_LWWRegister$json = const {
+const ReplicatedData_LWWRegister$json = const {
   '1': 'LWWRegister',
   '2': const [
     const {'1': 'valueType', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'valueType'},
   ],
 };
 
-const CRDT_ORMap$json = const {
+const ReplicatedData_ORMap$json = const {
   '1': 'ORMap',
   '2': const [
     const {'1': 'keyType', '3': 1, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'keyType'},
@@ -219,7 +220,27 @@ const CRDT_ORMap$json = const {
   ],
 };
 
-const CRDT_Vote$json = const {
+const ReplicatedData_Vote$json = const {
   '1': 'Vote',
+};
+
+const Action$json = const {
+  '1': 'Action',
+  '2': const [
+    const {'1': 'name', '3': 1, '4': 1, '5': 9, '10': 'name'},
+    const {'1': 'commandType', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'commandType'},
+    const {'1': 'responseType', '3': 3, '4': 1, '5': 11, '6': '.cloudstation.project.TypeReference', '10': 'responseType'},
+    const {'1': 'codeBlocks', '3': 4, '4': 3, '5': 11, '6': '.cloudstation.project.Action.CodeBlocksEntry', '10': 'codeBlocks'},
+  ],
+  '3': const [Action_CodeBlocksEntry$json],
+};
+
+const Action_CodeBlocksEntry$json = const {
+  '1': 'CodeBlocksEntry',
+  '2': const [
+    const {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    const {'1': 'value', '3': 2, '4': 1, '5': 9, '10': 'value'},
+  ],
+  '7': const {'7': true},
 };
 

@@ -15,7 +15,7 @@ class CloudstationApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: ProjectPage(
-        projectId: "my-cloudflow-app",
+        projectId: "my-cloudstation-app",
         initialProjectPageId: ProjectPageId.eventSourcedEntities,
       ),
     );

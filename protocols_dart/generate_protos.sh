@@ -4,7 +4,7 @@ rm -r ./tmp/protocols || true
 rm -r ./lib/src/generated || true
 
 mkdir -p ./tmp/protocols || true
-cp -r ../../protocols ./tmp
+cp -r ../protocols ./tmp
 
 mkdir -p ./lib/src/generated || true
 protoc \
