@@ -162,7 +162,7 @@ const AddActionCommand$json = const {
   '1': 'AddActionCommand',
   '2': const [
     const {'1': 'project_id', '3': 1, '4': 1, '5': 9, '8': const {}, '10': 'projectId'},
-    const {'1': 'entity', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.Action', '10': 'entity'},
+    const {'1': 'action', '3': 2, '4': 1, '5': 11, '6': '.cloudstation.project.Action', '10': 'action'},
   ],
 };
 
@@ -193,7 +193,7 @@ const UpdateActionCommand$json = const {
   '2': const [
     const {'1': 'project_id', '3': 1, '4': 1, '5': 9, '8': const {}, '10': 'projectId'},
     const {'1': 'originalName', '3': 2, '4': 1, '5': 9, '10': 'originalName'},
-    const {'1': 'entity', '3': 3, '4': 1, '5': 11, '6': '.cloudstation.project.Action', '10': 'entity'},
+    const {'1': 'action', '3': 3, '4': 1, '5': 11, '6': '.cloudstation.project.Action', '10': 'action'},
   ],
 };
 
@@ -405,7 +405,7 @@ const ActionUpdatedEvent$json = const {
 const Result$json = const {
   '1': 'Result',
   '2': const [
-    const {'1': 'success', '3': 1, '4': 1, '5': 8, '10': 'success'},
+    const {'1': 'code', '3': 1, '4': 1, '5': 5, '10': 'code'},
     const {'1': 'message', '3': 2, '4': 1, '5': 9, '10': 'message'},
   ],
 };

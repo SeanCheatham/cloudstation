@@ -101,7 +101,7 @@ message UpdateReplicatedEntityResponse {
 
 message AddActionCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
-    cloudstation.project.Action entity = 2;
+    cloudstation.project.Action action = 2;
 }
 message AddActionResponse {
     Result result = 1;
@@ -118,7 +118,7 @@ message RemoveActionResponse {
 message UpdateActionCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
     string originalName = 2;
-    cloudstation.project.Action entity = 3;
+    cloudstation.project.Action action = 3;
 }
 message UpdateActionResponse {
     Result result = 1;
@@ -202,7 +202,7 @@ message ActionUpdatedEvent {
 // Misc
 
 message Result {
-    bool success = 1;
+    int32 code = 1;
     string message = 2;
 }
 

@@ -958,7 +958,7 @@ class UpdateReplicatedEntityResponse extends $pb.GeneratedMessage {
 class AddActionCommand extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'AddActionCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'cloudstation.project'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'projectId')
-    ..aOM<$3.Action>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'entity', subBuilder: $3.Action.create)
+    ..aOM<$3.Action>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'action', subBuilder: $3.Action.create)
     ..hasRequiredFields = false
   ;
 
@@ -995,15 +995,15 @@ class AddActionCommand extends $pb.GeneratedMessage {
   void clearProjectId() => clearField(1);
 
   @$pb.TagNumber(2)
-  $3.Action get entity => $_getN(1);
+  $3.Action get action => $_getN(1);
   @$pb.TagNumber(2)
-  set entity($3.Action v) { setField(2, v); }
+  set action($3.Action v) { setField(2, v); }
   @$pb.TagNumber(2)
-  $core.bool hasEntity() => $_has(1);
+  $core.bool hasAction() => $_has(1);
   @$pb.TagNumber(2)
-  void clearEntity() => clearField(2);
+  void clearAction() => clearField(2);
   @$pb.TagNumber(2)
-  $3.Action ensureEntity() => $_ensure(1);
+  $3.Action ensureAction() => $_ensure(1);
 }
 
 class AddActionResponse extends $pb.GeneratedMessage {
@@ -1141,7 +1141,7 @@ class UpdateActionCommand extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UpdateActionCommand', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'cloudstation.project'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'projectId')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'originalName', protoName: 'originalName')
-    ..aOM<$3.Action>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'entity', subBuilder: $3.Action.create)
+    ..aOM<$3.Action>(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'action', subBuilder: $3.Action.create)
     ..hasRequiredFields = false
   ;
 
@@ -1187,15 +1187,15 @@ class UpdateActionCommand extends $pb.GeneratedMessage {
   void clearOriginalName() => clearField(2);
 
   @$pb.TagNumber(3)
-  $3.Action get entity => $_getN(2);
+  $3.Action get action => $_getN(2);
   @$pb.TagNumber(3)
-  set entity($3.Action v) { setField(3, v); }
+  set action($3.Action v) { setField(3, v); }
   @$pb.TagNumber(3)
-  $core.bool hasEntity() => $_has(2);
+  $core.bool hasAction() => $_has(2);
   @$pb.TagNumber(3)
-  void clearEntity() => clearField(3);
+  void clearAction() => clearField(3);
   @$pb.TagNumber(3)
-  $3.Action ensureEntity() => $_ensure(2);
+  $3.Action ensureAction() => $_ensure(2);
 }
 
 class UpdateActionResponse extends $pb.GeneratedMessage {
@@ -2035,7 +2035,7 @@ class ActionUpdatedEvent extends $pb.GeneratedMessage {
 
 class Result extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Result', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'cloudstation.project'), createEmptyInstance: create)
-    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'success')
+    ..a<$core.int>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'code', $pb.PbFieldType.O3)
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'message')
     ..hasRequiredFields = false
   ;
@@ -2064,13 +2064,13 @@ class Result extends $pb.GeneratedMessage {
   static Result _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.bool get success => $_getBF(0);
+  $core.int get code => $_getIZ(0);
   @$pb.TagNumber(1)
-  set success($core.bool v) { $_setBool(0, v); }
+  set code($core.int v) { $_setSignedInt32(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasSuccess() => $_has(0);
+  $core.bool hasCode() => $_has(0);
   @$pb.TagNumber(1)
-  void clearSuccess() => clearField(1);
+  void clearCode() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.String get message => $_getSZ(1);

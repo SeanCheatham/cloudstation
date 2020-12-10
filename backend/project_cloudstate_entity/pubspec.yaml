@@ -14,3 +14,5 @@ dependencies:
   protobuf: ^1.0.1
   cloudstation_protocols:
     path: ../../protocols_dart
+  cloudstation_event_handler:
+    path: ../../event_handler
