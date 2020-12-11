@@ -1,0 +1,16 @@
+name: cloudstation_dart_deploy_action
+description: A CloudState Action which exports a CloudStation Project into a standard Dart project, compiles it, and pushes a Docker container.
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  cloudstate: ^0.5.8
+  async: ^2.2.0
+  grpc: ^2.1.3
+  protobuf: ^1.0.1
+  cloudstation_protocols:
+    path: ../../protocols_dart

@@ -1,0 +1,120 @@
+syntax = "proto3";
+
+package cloudstation.project;
+
+message Project {
+    string project_id = 1;
+    repeated Model models = 2;
+    repeated EventSourcedEntity eventSourcedEntities = 3;
+    repeated ReplicatedEntity replicatedEntities = 4;
+    repeated Action actions = 5;
+}
+
+message Model {
+    string name = 1;
+    repeated Model.Property properties = 2;
+
+    message Property {
+        string name = 1;
+        TypeReference typeReference = 2;
+    }
+}
+
+message TypeReference {
+    oneof reference {
+        TypeReference.Static static = 1;
+        TypeReference.Model model = 2;
+        TypeReference.List list = 3;
+        TypeReference.Map map = 4;
+    }
+    message Static {
+        StaticType staticType = 1;
+    }
+    message Model {
+        string name = 1;
+        
+    }
+    message List {
+        TypeReference valueType = 1;
+    }
+    message Map {
+        TypeReference keyType = 1;
+        TypeReference valueType = 2;
+    }
+}
+
+enum StaticType {
+    INT32 = 0;
+    INT64 = 1;
+    FLOAT = 2;
+    DOUBLE = 3;
+    STRING = 4;
+    BOOL = 5;
+}
+
+message EventSourcedEntity {
+    string name = 1;
+    TypeReference stateType = 2;
+    repeated EventSourcedEntity.CommandHandler commandHandlers = 3;
+    repeated EventSourcedEntity.EventHandler eventHandlers = 4;
+
+    message CommandHandler {
+        TypeReference commandType = 1;
+        TypeReference responseType = 2;
+        map<string, string> codeBlocks = 3;
+    }
+
+    message EventHandler {
+        TypeReference eventType = 1;
+        map<string, string> codeBlocks = 2;
+    }
+}
+
+message ReplicatedEntity {
+    string name = 1;
+    ReplicatedData ReplicatedData = 2;
+    repeated CommandHandler commandHandlers = 3;
+
+    message CommandHandler {
+        TypeReference commandType = 1;
+        map<string, string> codeBlocks = 2;
+    }
+}
+
+message ReplicatedData {
+    oneof replicatedType {
+        ReplicatedData.GCounter gCounter = 1;
+        ReplicatedData.PNCounter pnCounter = 2;
+        ReplicatedData.GSet gSet = 3;
+        ReplicatedData.ORSet orSet = 4;
+        ReplicatedData.Flag flag = 5;
+        ReplicatedData.LWWRegister lwwRegister = 6;
+        ReplicatedData.ORMap orMap = 7;
+        ReplicatedData.Vote vote = 8;
+    }
+
+    message GCounter {}
+    message PNCounter {}
+    message GSet {
+        TypeReference valueType = 1;
+    }
+    message ORSet {
+        TypeReference valueType = 1;
+    }
+    message Flag {}
+    message LWWRegister {
+        TypeReference valueType = 1;
+    }
+    message ORMap {
+        TypeReference keyType = 1;
+        TypeReference valueType = 2;
+    }
+    message Vote {}
+}
+
+message Action {
+    string name = 1;
+    TypeReference commandType = 2;
+    TypeReference responseType = 3;
+    map<string, string> codeBlocks = 4;
+}
