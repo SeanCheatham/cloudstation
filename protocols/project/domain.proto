@@ -28,9 +28,11 @@ message TypeReference {
         TypeReference.Map map = 4;
     }
     message Static {
+        StaticType staticType = 1;
     }
     message Model {
         string name = 1;
+        
     }
     message List {
         TypeReference valueType = 1;

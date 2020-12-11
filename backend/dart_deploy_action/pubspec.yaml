@@ -1,5 +1,5 @@
-name: cloudstation_project_entity
-description: A CloudState entity representing a developer project.
+name: cloudstation_dart_deploy_action
+description: A CloudState Action which exports a CloudStation Project into a standard Dart project, compiles it, and pushes a Docker container.
 
 publish_to: 'none'
 version: 1.0.0+1
@@ -14,5 +14,3 @@ dependencies:
   protobuf: ^1.0.1
   cloudstation_protocols:
     path: ../../protocols_dart
-  cloudstation_event_handler:
-    path: ../../event_handler

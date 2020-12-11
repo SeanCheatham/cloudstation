@@ -61,6 +61,9 @@ const TypeReference$json = const {
 
 const TypeReference_Static$json = const {
   '1': 'Static',
+  '2': const [
+    const {'1': 'staticType', '3': 1, '4': 1, '5': 14, '6': '.cloudstation.project.StaticType', '10': 'staticType'},
+  ],
 };
 
 const TypeReference_Model$json = const {

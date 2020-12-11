@@ -9,6 +9,8 @@ import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'domain.pbenum.dart';
+
 export 'domain.pbenum.dart';
 
 class Project extends $pb.GeneratedMessage {
@@ -162,6 +164,7 @@ class Model extends $pb.GeneratedMessage {
 
 class TypeReference_Static extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'TypeReference.Static', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'cloudstation.project'), createEmptyInstance: create)
+    ..e<StaticType>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'staticType', $pb.PbFieldType.OE, protoName: 'staticType', defaultOrMaker: StaticType.INT32, valueOf: StaticType.valueOf, enumValues: StaticType.values)
     ..hasRequiredFields = false
   ;
 
@@ -187,6 +190,15 @@ class TypeReference_Static extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static TypeReference_Static getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TypeReference_Static>(create);
   static TypeReference_Static _defaultInstance;
+
+  @$pb.TagNumber(1)
+  StaticType get staticType => $_getN(0);
+  @$pb.TagNumber(1)
+  set staticType(StaticType v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasStaticType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearStaticType() => clearField(1);
 }
 
 class TypeReference_Model extends $pb.GeneratedMessage {
