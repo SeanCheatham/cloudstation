@@ -1,0 +1,82 @@
+name: CloudStation Build
+
+on:
+  push:
+
+jobs:
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Linux FLutter Dependencies
+        run: |
+          sudo apt-get -q update
+          sudo apt-get install -y clang ninja-build libgtk-3-dev libblkid-dev
+      - name: Install Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: dev
+      - name: Add Dart pub-cache to path
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+      - run: flutter config --enable-linux-desktop
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+      - name: Dart Proto Support
+        run: flutter pub global activate protoc_plugin
+      - run: flutter doctor
+
+      - run: flutter pub get
+        working-directory: ./protocols_dart
+      - run: ./generate_protos.sh
+        working-directory: ./protocols_dart
+      - run: flutter pub get
+        working-directory: ./frontend
+      - run: flutter test
+        working-directory: ./frontend
+      - run: flutter build linux
+        working-directory: ./frontend
+
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Dart
+        uses: cedx/setup-dart@v2
+      - name: Add Dart pub-cache to path
+        run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH
+      - name: Install Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        id: buildx
+        with:
+          install: true
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+      - name: Dart Proto Support
+        run: pub global activate protoc_plugin
+
+      - run: pub get
+        working-directory: ./protocols_dart
+      - run: ./generate_protos.sh
+        working-directory: ./protocols_dart
+        
+      - run: pub get
+        working-directory: ./backend/project_cloudstate_entity
+      - run: ./copy_proto_descriptor.sh
+        working-directory: ./backend/project_cloudstate_entity
+      - run: pub run test
+        working-directory: ./backend/project_cloudstate_entity
+      # TODO: Re-enable
+      # - run: docker build -f ./backend/project_cloudstate_entity/Dockerfile .
+        
+      - run: pub get
+        working-directory: ./backend/dart_deploy_action
+      - run: ./copy_proto_descriptor.sh
+        working-directory: ./backend/dart_deploy_action
+      - run: pub run test
+        working-directory: ./backend/dart_deploy_action
+      # TODO: Re-enable
+      # - run: docker build -f ./backend/dart_deploy_action/Dockerfile .

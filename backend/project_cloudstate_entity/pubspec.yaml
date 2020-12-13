@@ -16,3 +16,6 @@ dependencies:
     path: ../../protocols_dart
   cloudstation_event_handler:
     path: ../../event_handler
+
+dev_dependencies:
+  test: ^1.15.7
