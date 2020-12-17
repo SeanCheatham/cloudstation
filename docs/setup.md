@@ -1,5 +1,7 @@
 # Developer Setup
 
+At the moment, the UI targets Linux desktop.  Targetting other desktop platforms is possible as interest in the project grows.
+
 ## Flutter
 1. Install Flutter.
    - [Flutter Install]([Instructions](https://flutter.dev/docs/get-started/install))
