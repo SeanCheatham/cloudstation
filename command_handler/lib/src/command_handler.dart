@@ -115,9 +115,7 @@ extension AddModelCommandHelp on p.AddModelCommand {
         ..addAll(validateDuplicateProperties(model));
 
   List<dynamic> commandToEvents(d.Project state) {
-    final name = model.hasName() && model.name != "" ? model.name : "NewModel";
-    final event = p.ModelAddedEvent()
-      ..model = model.rebuild((model) => model..name = name);
+    final event = p.ModelAddedEvent()..model = model.deepCopy();
     return [event];
   }
 }
@@ -154,10 +152,7 @@ extension AddEventSourcedEntityCommandHelp on p.AddEventSourcedEntityCommand {
             : []);
 
   List<dynamic> commandToEvents(d.Project state) {
-    final name =
-        entity.hasName() && entity.name != "" ? entity.name : "NewEntity";
-    final event = p.EventSourcedEntityAddedEvent()
-      ..entity = entity.rebuild((e) => e..name = name);
+    final event = p.EventSourcedEntityAddedEvent()..entity = entity.deepCopy();
     return [event];
   }
 }
@@ -196,10 +191,7 @@ extension AddReplicatedEntityCommandHelp on p.AddReplicatedEntityCommand {
             : []);
 
   List<dynamic> commandToEvents(d.Project state) {
-    final name =
-        entity.hasName() && entity.name != "" ? entity.name : "NewEntity";
-    final event = p.ReplicatedEntityAddedEvent()
-      ..entity = entity.rebuild((e) => e..name = name);
+    final event = p.ReplicatedEntityAddedEvent()..entity = entity.deepCopy();
     return [event];
   }
 }
@@ -236,10 +228,7 @@ extension AddActionCommandHelp on p.AddActionCommand {
             : []);
 
   List<dynamic> commandToEvents(d.Project state) {
-    final name =
-        action.hasName() && action.name != "" ? action.name : "NewEntity";
-    final event = p.ActionAddedEvent()
-      ..action = action.rebuild((a) => a..name = name);
+    final event = p.ActionAddedEvent()..action = action.deepCopy();
     return [event];
   }
 }

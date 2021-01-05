@@ -1,3 +1,4 @@
+import 'package:cloudstation_protocols/generated/domain.pbjson.dart';
 import 'package:cloudstation_protocols/generated/project.pb.dart';
 import 'package:cloudstation_protocols/generated/domain.pb.dart';
 import 'package:protobuf/protobuf.dart';
@@ -31,7 +32,11 @@ Project mapEventToState(Project state, event) {
 }
 
 _modelAddedEvent(Project state, ModelAddedEvent event) {
-  return state..models.add(event.model);
+  final model = event.model.deepCopy();
+  if (!model.hasName() || model.name.isEmpty) {
+    model.name = "NewModel";
+  }
+  return state..models.add(model);
 }
 
 _modelRemovedEvent(Project state, ModelRemovedEvent event) {
@@ -56,7 +61,12 @@ _modelUpdatedEvent(Project state, ModelUpdatedEvent event) {
 
 _eventSourcedEntityAddedEvent(
     Project state, EventSourcedEntityAddedEvent event) {
-  return state..eventSourcedEntities.add(event.entity);
+  final entity = event.entity.deepCopy();
+  if (!entity.hasName() || entity.name.isEmpty) {
+    entity.name = _nextUniqueName(
+        state.eventSourcedEntities.map((a) => a.name).toSet(), "NewEntity", 0);
+  }
+  return state..eventSourcedEntities.add(entity);
 }
 
 _eventSourcedEntityRemovedEvent(
@@ -73,7 +83,12 @@ _eventSourcedEntityUpdatedEvent(
 }
 
 _replicatedEntityAddedEvent(Project state, ReplicatedEntityAddedEvent event) {
-  return state..replicatedEntities.add(event.entity);
+  final entity = event.entity.deepCopy();
+  if (!entity.hasName() || entity.name.isEmpty) {
+    entity.name = _nextUniqueName(
+        state.replicatedEntities.map((a) => a.name).toSet(), "NewEntity", 0);
+  }
+  return state..replicatedEntities.add(entity);
 }
 
 _replicatedEntityRemovedEvent(
@@ -91,7 +106,20 @@ _replicatedEntityUpdatedEvent(
 }
 
 _actionAddedEvent(Project state, ActionAddedEvent event) {
-  return state..actions.add(event.action);
+  final entity = event.action.deepCopy();
+  if (!entity.hasName() || entity.name.isEmpty) {
+    entity.name = _nextUniqueName(
+        state.actions.map((a) => a.name).toSet(), "NewAction", 0);
+  }
+  if (!entity.hasCommandType()) {
+    entity.commandType = TypeReference()
+      ..static = (TypeReference_Static()..staticType = StaticType.INT32);
+  }
+  if (!entity.hasResponseType()) {
+    entity.responseType = TypeReference()
+      ..static = (TypeReference_Static()..staticType = StaticType.INT32);
+  }
+  return state..actions.add(entity);
 }
 
 _actionRemovedEvent(Project state, ActionRemovedEvent event) {
@@ -126,6 +154,16 @@ _fixTypeReferences(
     ..eventSourcedEntities.applyForeach(fixEventSourcedEntity)
     ..replicatedEntities.applyForeach(fixReplicatedEntity)
     ..actions.applyForeach(fixAction);
+}
+
+String _nextUniqueName(Set<String> names, String base, int index) {
+  if (!names.contains(base)) return base;
+  if (index > 0) {
+    final withIndex = base + "$index";
+    if (!names.contains(withIndex)) return withIndex;
+  }
+
+  return _nextUniqueName(names, base, index + 1);
 }
 
 extension ListApplyMap<T> on List<T> {

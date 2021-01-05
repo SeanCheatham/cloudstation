@@ -5,6 +5,7 @@ import '../../models/domain_support.dart';
 import '../../models/project_state.dart';
 import './ui/event_sourced_entities_page.dart';
 import './ui/models_page.dart';
+import './ui/actions_page.dart';
 import './ui/replicated_entities_page.dart';
 import './ui/project_page_drawer.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,14 @@ class ProjectsModule extends ChildModule {
           "/:projectId/replicated-entities/:entityName/commands/:selectedCommandHandler",
           child: _replicatedEntitiesRoute,
         ),
-        // TODO: Other pages
+        ModularRouter(
+          "/:projectId/actions",
+          child: _actionsRoute,
+        ),
+        ModularRouter(
+          "/:projectId/actions/:entityName",
+          child: _actionsRoute,
+        ),
       ];
 
   Widget _modelsRoute(BuildContext context, ModularArguments args) =>
@@ -125,6 +133,22 @@ class ProjectsModule extends ChildModule {
                         ? deserializeTypeReference(
                             args.params["selectedCommandHandler"])
                         : null,
+              )));
+
+  Widget _actionsRoute(
+          BuildContext context, ModularArguments args) =>
+      _withProjectBloc(
+          context,
+          args,
+          (context, state, addEventF) => _withScaffold(
+              state,
+              addEventF,
+              ProjectPageId.actions,
+              ActionsPage(
+                key: UniqueKey(),
+                state: state,
+                addEvent: addEventF,
+                selectedEntityName: args.params["entityName"],
               )));
 
   Widget _withScaffold(ProjectState state, Function(dynamic) addEvent,

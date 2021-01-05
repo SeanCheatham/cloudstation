@@ -232,6 +232,8 @@ class EventSourcedEntityEditor extends StatelessWidget {
 
   _onEntityRenamed(String newName) {
     onEntityUpdated(initialEntity.withName(newName));
+    Modular.link.pushNamed(
+        "/${projectState.project.projectId}/event-sourced-entities/$newName");
   }
 
   _onEntityTypeChanged(d.TypeReference newType) {

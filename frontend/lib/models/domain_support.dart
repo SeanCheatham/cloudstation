@@ -242,28 +242,45 @@ extension ReplicatedDataHelp on d.ReplicatedData {
       return "PNCounter";
     else if (hasGSet())
       return "GSet" +
-          ((gSet.valueType != null) ? "[${gSet.valueType.name}]" : "");
+          ((gSet.valueType?.name != null) ? "[${gSet.valueType.name}]" : "");
     else if (hasOrSet())
       return "ORSet" +
-          ((orSet.valueType != null) ? "[${orSet.valueType.name}]" : "");
+          ((orSet.valueType?.name != null) ? "[${orSet.valueType.name}]" : "");
     else if (hasFlag())
       return "Flag";
     else if (hasLwwRegister())
       return "LWWRegister" +
-          ((lwwRegister.valueType != null)
+          ((lwwRegister.valueType?.name != null)
               ? "[${lwwRegister.valueType.name}]"
               : "");
     else if (hasOrMap()) {
       String suffix;
-      if (orMap.keyType == null && orMap.valueType == null)
+      if (orMap.keyType?.name == null && orMap.valueType?.name == null)
         suffix = "";
-      else if (orMap.keyType == null)
+      else if (orMap.keyType?.name == null)
         suffix = "[_, ${orMap.valueType.name}]";
-      else if (orMap.valueType == null)
+      else if (orMap.valueType?.name == null)
         suffix = "[${orMap.keyType.name}, _]";
       else
         suffix = "[${orMap.keyType.name}, ${orMap.valueType.name}]";
       return "ORMap$suffix";
     } else if (hasVote()) return "Vote";
   }
+}
+
+extension ActionHelp on d.Action {
+  d.Action withName(String newName) =>
+      this.deepCopy()..name = newName;
+      
+    d.Action withCommandType(
+          d.TypeReference updatedValue) =>
+      this.deepCopy()..commandType = updatedValue;
+
+  d.Action withResponseType(
+          d.TypeReference updatedValue) =>
+      this.deepCopy()..responseType = updatedValue;
+
+  d.Action withCode(
+          String name, String updatedValue) =>
+      this.deepCopy()..codeBlocks[name] = updatedValue;
 }

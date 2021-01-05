@@ -180,6 +180,8 @@ class ReplicatedEntityEditor extends StatelessWidget {
 
   _onEntityRenamed(String newName) {
     onEntityUpdated(initialEntity.withName(newName));
+    Modular.link.pushNamed(
+        "/${projectState.project.projectId}/replicated-entities/$newName");
   }
 
   _onReplicatedDataUpdated(d.ReplicatedData newType) {
