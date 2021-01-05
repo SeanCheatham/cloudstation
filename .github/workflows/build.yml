@@ -20,7 +20,7 @@ jobs:
           channel: dev
       - name: Add Dart pub-cache to path
         run: echo "$HOME/.pub-cache/bin" >> $GITHUB_PATH && echo "$FLUTTER_HOME/.pub-cache/bin" >> $GITHUB_PATH
-      - run: flutter config --enable-linux-desktop
+      - run: flutter config --enable-linux-desktop && flutter config --enable-web
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
       - name: Dart Proto Support
