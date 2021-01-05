@@ -1,5 +1,5 @@
-import 'package:cloudstation/logic/project_bloc.dart';
-import 'package:cloudstation/models/projects/project_states.dart';
+import '../project_bloc.dart';
+import 'package:cloudstation/models/project_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,7 +14,8 @@ class ProjectPageDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectBloc, ProjectState>(
-      builder: (context, state) => _drawerForProject(context, state.projectId),
+      builder: (context, state) =>
+          _drawerForProject(context, state.project.projectId),
     );
   }
 
@@ -30,38 +31,27 @@ class ProjectPageDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Project Configuration'),
-            onTap: () {
-              pageSelected(ProjectPageId.projectConfiguration);
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
             title: Text('Models'),
             onTap: () {
               pageSelected(ProjectPageId.models);
-              Navigator.pop(context);
             },
           ),
           ListTile(
             title: Text('Event Sourced Entities'),
             onTap: () {
               pageSelected(ProjectPageId.eventSourcedEntities);
-              Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('CRDTs'),
+            title: Text('Replicated Entities'),
             onTap: () {
-              pageSelected(ProjectPageId.crdts);
-              Navigator.pop(context);
+              pageSelected(ProjectPageId.replicatedEntities);
             },
           ),
           ListTile(
-            title: Text('Operations'),
+            title: Text('Actions'),
             onTap: () {
-              pageSelected(ProjectPageId.operations);
-              Navigator.pop(context);
+              pageSelected(ProjectPageId.actions);
             },
           ),
         ],
@@ -70,10 +60,4 @@ class ProjectPageDrawer extends StatelessWidget {
   }
 }
 
-enum ProjectPageId {
-  projectConfiguration,
-  models,
-  eventSourcedEntities,
-  crdts,
-  operations
-}
+enum ProjectPageId { models, eventSourcedEntities, replicatedEntities, actions }

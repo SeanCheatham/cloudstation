@@ -1,0 +1,165 @@
+[
+    {
+        "@type": "cloudstation.project.ModelAddedEvent",
+        "model": {
+            "name": "CartItem",
+            "properties": [
+                {
+                    "name": "itemId",
+                    "typeReference": {
+                        "static": {
+                            "staticType": "STRING"
+                        }
+                    }
+                },
+                {
+                    "name": "count",
+                    "typeReference": {
+                        "static": {
+                            "staticType": "INT32"
+                        }
+                    }
+                },
+                {
+                    "name": "price",
+                    "typeReference": {
+                        "static": {
+                            "staticType": "DOUBLE"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.ModelAddedEvent",
+        "model": {
+            "name": "ShoppingCartState",
+            "properties": [
+                {
+                    "name": "cartItems",
+                    "typeReference": {
+                        "list": {
+                            "valueType": {
+                                "model": {
+                                    "name": "CartItem"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.ModelAddedEvent",
+        "model": {
+            "name": "AddCartItemCommand",
+            "properties": [
+                {
+                    "name": "cartItem",
+                    "typeReference": {
+                        "model": {
+                            "name": "CartItem"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.ModelAddedEvent",
+        "model": {
+            "name": "CartItemAddedEvent",
+            "properties": [
+                {
+                    "name": "cartItem",
+                    "typeReference": {
+                        "model": {
+                            "name": "CartItem"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.ModelAddedEvent",
+        "model": {
+            "name": "AddCartItemResponse",
+            "properties": [
+                {
+                    "name": "success",
+                    "typeReference": {
+                        "static": {
+                            "staticType": "BOOL"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.EventSourcedEntityAddedEvent",
+        "entity": {
+            "name": "ShoppingCart",
+            "stateType": {
+                "model": {
+                    "name": "ShoppingCartState"
+                }
+            },
+            "commandHandlers": [
+                {
+                    "commandType": {
+                        "model": {
+                            "name": "AddCartItemCommand"
+                        }
+                    },
+                    "responseType": {
+                        "model": {
+                            "name": "AddCartItemResponse"
+                        }
+                    },
+                    "codeBlocks": {
+                        "body": "        ???"
+                    }
+                }
+            ],
+            "eventHandlers": [
+                {
+                    "eventType": {
+                        "model": {
+                            "name": "CartItemAddedEvent"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "@type": "cloudstation.project.ReplicatedEntityAddedEvent",
+        "entity": {
+            "name": "ShoppingCart",
+            "replicatedData": {
+                "gCounter": {}
+            },
+            "commandHandlers": [
+                {
+                    "commandType": {
+                        "model": {
+                            "name": "AddCartItemCommand"
+                        }
+                    },
+                    "responseType": {
+                        "model": {
+                            "name": "AddCartItemResponse"
+                        }
+                    },
+                    "codeBlocks": {
+                        "body": "        ???"
+                    }
+                }
+            ]
+        }
+    }
+]

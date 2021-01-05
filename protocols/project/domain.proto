@@ -72,12 +72,13 @@ message EventSourcedEntity {
 
 message ReplicatedEntity {
     string name = 1;
-    ReplicatedData ReplicatedData = 2;
+    ReplicatedData replicatedData = 2;
     repeated CommandHandler commandHandlers = 3;
 
     message CommandHandler {
         TypeReference commandType = 1;
-        map<string, string> codeBlocks = 2;
+        TypeReference responseType = 2;
+        map<string, string> codeBlocks = 3;
     }
 }
 

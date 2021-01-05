@@ -31,15 +31,11 @@ Project mapEventToState(Project state, event) {
 }
 
 _modelAddedEvent(Project state, ModelAddedEvent event) {
-  return state.rebuild(
-    (state) => state..models.add(event.model),
-  );
+  return state..models.add(event.model);
 }
 
 _modelRemovedEvent(Project state, ModelRemovedEvent event) {
-  return state.rebuild(
-    (state) => state..models.removeWhere((model) => model.name == event.name),
-  );
+  state..models.removeWhere((model) => model.name == event.name);
 }
 
 _modelUpdatedEvent(Project state, ModelUpdatedEvent event) {
@@ -52,9 +48,7 @@ _modelUpdatedEvent(Project state, ModelUpdatedEvent event) {
   final updatedTypeReference = TypeReference_Model()
     ..name = event.updatedModel.name;
   return _fixTypeReferences(
-    state.rebuild(
-      (state) => state..models[index] = event.updatedModel,
-    ),
+    state..models[index] = event.updatedModel,
     TypeReference()..model = originalTypeReference,
     TypeReference()..model = updatedTypeReference,
   );
@@ -62,71 +56,52 @@ _modelUpdatedEvent(Project state, ModelUpdatedEvent event) {
 
 _eventSourcedEntityAddedEvent(
     Project state, EventSourcedEntityAddedEvent event) {
-  return state.rebuild(
-    (state) => state..eventSourcedEntities.add(event.entity),
-  );
+  return state..eventSourcedEntities.add(event.entity);
 }
 
 _eventSourcedEntityRemovedEvent(
     Project state, EventSourcedEntityRemovedEvent event) {
-  return state.rebuild(
-    (state) => state
-      ..eventSourcedEntities.removeWhere((entity) => entity.name == event.name),
-  );
+  return state
+    ..eventSourcedEntities.removeWhere((entity) => entity.name == event.name);
 }
 
 _eventSourcedEntityUpdatedEvent(
     Project state, EventSourcedEntityUpdatedEvent event) {
   final index = state.eventSourcedEntities.indexWhere(
       (eventsourcedentity) => eventsourcedentity.name == event.originalName);
-  return state.rebuild(
-    (state) => state..eventSourcedEntities[index] = event.entity,
-  );
+  return state..eventSourcedEntities[index] = event.entity;
 }
 
 _replicatedEntityAddedEvent(Project state, ReplicatedEntityAddedEvent event) {
-  return state.rebuild(
-    (state) => state..replicatedEntities.add(event.entity),
-  );
+  return state..replicatedEntities.add(event.entity);
 }
 
 _replicatedEntityRemovedEvent(
     Project state, ReplicatedEntityRemovedEvent event) {
-  return state.rebuild(
-    (state) => state
-      ..replicatedEntities.removeWhere((entity) => entity.name == event.name),
-  );
+  return state
+    ..replicatedEntities.removeWhere((entity) => entity.name == event.name);
 }
 
 _replicatedEntityUpdatedEvent(
     Project state, ReplicatedEntityUpdatedEvent event) {
-  return state.rebuild(
-    (state) => state
-      ..replicatedEntities[state.eventSourcedEntities.indexWhere(
-          (replicatedentity) =>
-              replicatedentity.name == event.originalName)] = event.entity,
-  );
+  return state
+    ..replicatedEntities[state.eventSourcedEntities.indexWhere(
+        (replicatedentity) =>
+            replicatedentity.name == event.originalName)] = event.entity;
 }
 
 _actionAddedEvent(Project state, ActionAddedEvent event) {
-  return state.rebuild(
-    (state) => state..actions.add(event.action),
-  );
+  return state..actions.add(event.action);
 }
 
 _actionRemovedEvent(Project state, ActionRemovedEvent event) {
-  return state.rebuild(
-    (state) =>
-        state..actions.removeWhere((action) => action.name == event.name),
-  );
+  return state..actions.removeWhere((action) => action.name == event.name);
 }
 
 _actionUpdatedEvent(Project state, ActionUpdatedEvent event) {
   final index =
       state.actions.indexWhere((action) => action.name == event.originalName);
-  return state.rebuild(
-    (state) => state..actions[index] = event.action,
-  );
+  return state..actions[index] = event.action;
 }
 
 _fixTypeReferences(
@@ -135,23 +110,22 @@ _fixTypeReferences(
       reference == originalType ? updatedType : originalType;
 
   fixEventSourcedEntity(EventSourcedEntity entity) => entity
-    ..commandHandlers
-        .applyForeach((handler) => handler.rebuild((handler) => handler
-          ..commandType = fix(handler.commandType)
-          ..responseType = fix(handler.responseType)));
+    ..commandHandlers.applyForeach((handler) => handler
+      ..commandType = fix(handler.commandType)
+      ..responseType = fix(handler.responseType));
 
   fixReplicatedEntity(ReplicatedEntity entity) => entity
-    ..commandHandlers.applyForeach((handler) => handler.rebuild(
-        ((handler) => handler..commandType = fix(handler.commandType))));
+    ..commandHandlers.applyForeach(
+        (handler) => handler..commandType = fix(handler.commandType));
 
   fixAction(Action action) => action.commandType == originalType
-      ? action.rebuild((action) => action..commandType = updatedType)
+      ? (action..commandType = updatedType)
       : action;
 
-  return state.rebuild((state) => state
+  return state
     ..eventSourcedEntities.applyForeach(fixEventSourcedEntity)
     ..replicatedEntities.applyForeach(fixReplicatedEntity)
-    ..actions.applyForeach(fixAction));
+    ..actions.applyForeach(fixAction);
 }
 
 extension ListApplyMap<T> on List<T> {

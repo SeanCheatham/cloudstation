@@ -1,67 +1,78 @@
-import 'package:cloudstation/logic/project_bloc.dart';
-import 'package:cloudstation/models/event_sourced_entity.dart';
-import 'package:cloudstation/models/model.dart';
+import 'package:cloudstation/models/domain_support.dart';
+import 'package:cloudstation_protocols/generated/domain.pb.dart' as d;
+import 'package:cloudstation_protocols/generated/project.pb.dart' as p;
 import 'package:cloudstation/ui/widgets/code_editor.dart';
 import 'package:cloudstation/ui/widgets/panel.dart';
 import 'package:cloudstation/ui/widgets/scaffolds.dart';
 import 'package:cloudstation/ui/widgets/single_value_form.dart';
 import 'package:cloudstation/ui/widgets/type_chooser.dart';
 import 'package:flutter/material.dart';
-import 'package:cloudstation/models/projects/project_events.dart' as events;
-import 'package:cloudstation/models/projects/project_states.dart' as states;
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cloudstation/models/project_state.dart';
+import 'package:flutter_modular/flutter_modular.dart';
 
-class EventSourcedEntitiesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProjectBloc, states.ProjectState>(
-      builder: (context, state) => EventSourcedEntitiesPageImpl(
-        state: state as states.LoadedProjectState,
-        addEvent: context.watch<ProjectBloc>().add,
-      ),
-    );
-  }
-}
+class EventSourcedEntitiesPage extends StatefulWidget {
+  final ProjectState state;
+  final Function(dynamic) addEvent;
+  final String selectedEntityName;
+  final d.TypeReference selectedCommandHandler;
+  final d.TypeReference selectedEventHandler;
 
-class EventSourcedEntitiesPageImpl extends StatefulWidget {
-  final states.LoadedProjectState state;
-  final Function(events.ProjectEvent) addEvent;
-
-  const EventSourcedEntitiesPageImpl({Key key, this.state, this.addEvent})
+  const EventSourcedEntitiesPage(
+      {Key key,
+      @required this.state,
+      @required this.addEvent,
+      @required this.selectedEntityName,
+      @required this.selectedCommandHandler,
+      @required this.selectedEventHandler})
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _EventSourcedEntitiesPageImplState();
+  State<StatefulWidget> createState() => _EventSourcedEntitiesPageState();
+
+  int get selectedEntityIndex {
+    if (selectedEntityName == null) return null;
+
+    final index = state.project.eventSourcedEntities
+        .indexWhere((e) => e.name == selectedEntityName);
+
+    if (index >= 0)
+      return index;
+    else
+      return null;
+  }
 }
 
-class _EventSourcedEntitiesPageImplState
-    extends State<EventSourcedEntitiesPageImpl> {
+class _EventSourcedEntitiesPageState extends State<EventSourcedEntitiesPage> {
   @override
   Widget build(BuildContext context) {
     return LeftRight(
       leftTitle: "Entities",
-      onNewItem: () => widget.addEvent(events.AddEventSourcedEntity()),
-      itemCount: widget.state.eventSourcedEntities.length,
+      onNewItem: () => widget.addEvent(p.AddEventSourcedEntityCommand()),
+      itemCount: widget.state.project.eventSourcedEntities.length,
       itemBuilder: buildItemTile,
       emptySelection: emptySelection,
       itemEditorBuilder: buildItemEditor,
-      currentIndex: widget.state.selectedEntityIndex,
-      itemSelected: (idx) =>
-          widget.addEvent(events.SelectEventSourcedEntity(idx)),
+      currentIndex: widget.selectedEntityIndex,
+      itemSelected: (idx) => Modular.link.pushNamed(
+          "/${widget.state.project.projectId}/event-sourced-entities/${widget.state.project.eventSourcedEntities[idx].name}"),
     );
   }
 
   Widget buildItemTile(BuildContext context, int idx) {
-    return Text(widget.state.eventSourcedEntities[idx].name);
+    return Text(widget.state.project.eventSourcedEntities[idx].name);
   }
 
   Widget buildItemEditor(BuildContext context, int idx) {
     return EventSourcedEntityEditor(
-      initialEntity: widget.state.eventSourcedEntities[idx],
+      initialEntity: widget.state.project.eventSourcedEntities[idx],
       projectState: widget.state,
       onEntityUpdated: (updated) => widget.addEvent(
-          events.UpdatedEventSourcedEntity(
-              widget.state.eventSourcedEntities[idx], updated)),
+        p.UpdateEventSourcedEntityCommand()
+          ..originalName = widget.state.project.eventSourcedEntities[idx].name
+          ..entity = updated,
+      ),
+      selectedCommandHandler: widget.selectedCommandHandler,
+      selectedEventHandler: widget.selectedEventHandler,
     );
   }
 
@@ -69,13 +80,36 @@ class _EventSourcedEntitiesPageImplState
 }
 
 class EventSourcedEntityEditor extends StatelessWidget {
-  final EventSourcedEntity initialEntity;
-  final states.LoadedProjectState projectState;
-  final Function(EventSourcedEntity) onEntityUpdated;
+  final d.EventSourcedEntity initialEntity;
+  final ProjectState projectState;
+  final Function(d.EventSourcedEntity) onEntityUpdated;
+  final d.TypeReference selectedCommandHandler;
+  final d.TypeReference selectedEventHandler;
 
-  const EventSourcedEntityEditor(
-      {Key key, this.initialEntity, this.projectState, this.onEntityUpdated})
-      : super(key: key);
+  const EventSourcedEntityEditor({
+    Key key,
+    @required this.initialEntity,
+    @required this.projectState,
+    @required this.onEntityUpdated,
+    @required this.selectedCommandHandler,
+    @required this.selectedEventHandler,
+  }) : super(key: key);
+
+  int get selectedCommandHandlerIndex {
+    if (selectedCommandHandler == null) return null;
+    final index = initialEntity.commandHandlers
+        .indexWhere((e) => e.commandType.wrap == selectedCommandHandler.wrap);
+
+    return index >= 0 ? index : null;
+  }
+
+  int get selectedEventHandlerIndex {
+    if (selectedEventHandler == null) return null;
+    final index = initialEntity.eventHandlers
+        .indexWhere((e) => e.eventType.wrap == selectedEventHandler.wrap);
+
+    return index >= 0 ? index : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +143,7 @@ class EventSourcedEntityEditor extends StatelessWidget {
       title: "State Type",
       hint: Text(initialEntity.stateType.name),
       child: TypeChooser(
-        availableTypes: projectState.availableTypes,
+        availableTypes: projectState.project.availableTypes,
         selectedType: initialEntity.stateType,
         onTypeUpdated: _onEntityTypeChanged,
       ),
@@ -119,7 +153,7 @@ class EventSourcedEntityEditor extends StatelessWidget {
   Widget commandHandlersEditor(BuildContext context) {
     final child = LeftRight(
       leftTitle: "Commands",
-      currentIndex: initialEntity.selectedCommandHandlerIndex,
+      currentIndex: selectedCommandHandlerIndex,
       emptySelection: const Center(child: Text("Select a Command")),
       itemBuilder: commandListTile,
       itemCount: initialEntity.commandHandlers.length,
@@ -130,7 +164,7 @@ class EventSourcedEntityEditor extends StatelessWidget {
 
     return Panel(
       title: "Command Handlers",
-      initiallyExpanded: initialEntity.selectedCommandHandlerIndex != null,
+      initiallyExpanded: selectedCommandHandler != null,
       hint: Text(initialEntity.commandHandlers
           .map((h) => h.commandType.name)
           .join(", ")),
@@ -147,14 +181,14 @@ class EventSourcedEntityEditor extends StatelessWidget {
       stateType: initialEntity.stateType,
       onCommandUpdated: (updated) =>
           onEntityUpdated(initialEntity..commandHandlers[idx] = updated),
-      availableTypes: projectState.availableTypes,
+      availableTypes: projectState.project.availableTypes,
     );
   }
 
   Widget eventHandlersEditor(BuildContext context) {
     final child = LeftRight(
       leftTitle: "Events",
-      currentIndex: initialEntity.selectedEventHandlerIndex,
+      currentIndex: selectedEventHandlerIndex,
       emptySelection: const Center(child: Text("Select an Event Handler")),
       itemBuilder: eventListTile,
       itemCount: initialEntity.eventHandlers.length,
@@ -168,7 +202,7 @@ class EventSourcedEntityEditor extends StatelessWidget {
       hint: Text(initialEntity.commandHandlers
           .map((h) => h.commandType.name)
           .join(", ")),
-      initiallyExpanded: initialEntity.selectedEventHandlerIndex != null,
+      initiallyExpanded: selectedEventHandler != null,
       child: LimitedBox(
         child: child,
         maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -182,7 +216,7 @@ class EventSourcedEntityEditor extends StatelessWidget {
       stateType: initialEntity.stateType,
       onEventUpdated: (updated) =>
           onEntityUpdated(initialEntity..eventHandlers[idx] = updated),
-      availableTypes: projectState.availableTypes,
+      availableTypes: projectState.project.availableTypes,
     );
   }
 
@@ -200,56 +234,60 @@ class EventSourcedEntityEditor extends StatelessWidget {
     onEntityUpdated(initialEntity.withName(newName));
   }
 
-  _onEntityTypeChanged(TypeReference newType) {
+  _onEntityTypeChanged(d.TypeReference newType) {
     onEntityUpdated(initialEntity.withStateType(newType));
   }
 
   _onCommandHandlerSelected(int idx) {
-    onEntityUpdated(initialEntity.withSelectedCommandHandlerIndex(idx));
+    final typeReference = initialEntity.commandHandlers[idx].commandType;
+    Modular.link.pushNamed(
+        "/${projectState.project.projectId}/event-sourced-entities/${initialEntity.name}/commands/${typeReference.name}");
   }
 
   _onCommandHandlerAdded() {
     onEntityUpdated(
       initialEntity
-        ..commandHandlers.add(
-          CommandHandler(
-            StaticTypeReference(StaticType.int32),
-            StaticTypeReference(StaticType.int32),
-            "",
-          ),
-        ),
+        ..commandHandlers.add(d.EventSourcedEntity_CommandHandler()
+          ..commandType = (d.TypeReference()
+            ..static =
+                (d.TypeReference_Static()..staticType = d.StaticType.INT32))
+          ..responseType = (d.TypeReference()
+            ..static =
+                (d.TypeReference_Static()..staticType = d.StaticType.INT32))
+          ..codeBlocks["body"] = ""),
     );
   }
 
   _onEventHandlerSelected(int idx) {
-    onEntityUpdated(initialEntity.withSelectedEventHandlerIndex(idx));
+    final typeReference = initialEntity.eventHandlers[idx].eventType;
+    Modular.link.pushNamed(
+        "/${projectState.project.projectId}/event-sourced-entities/${initialEntity.name}/events/${typeReference.name}");
   }
 
   _onEventHandlerAdded() {
     onEntityUpdated(
       initialEntity
-        ..eventHandlers.add(
-          EventHandler(
-            StaticTypeReference(StaticType.int32),
-            "",
-          ),
-        ),
+        ..eventHandlers.add(d.EventSourcedEntity_EventHandler()
+          ..eventType = (d.TypeReference()
+            ..static =
+                (d.TypeReference_Static()..staticType = d.StaticType.INT32))
+          ..codeBlocks["body"] = ""),
     );
   }
 }
 
 class CommandEditor extends StatelessWidget {
-  final CommandHandler commandHandler;
-  final TypeReference stateType;
-  final Function(CommandHandler) onCommandUpdated;
-  final List<TypeReference> availableTypes;
+  final d.EventSourcedEntity_CommandHandler commandHandler;
+  final d.TypeReference stateType;
+  final Function(d.EventSourcedEntity_CommandHandler) onCommandUpdated;
+  final List<d.TypeReference> availableTypes;
 
   const CommandEditor(
       {Key key,
-      this.commandHandler,
-      this.stateType,
-      this.onCommandUpdated,
-      this.availableTypes})
+      @required this.commandHandler,
+      @required this.stateType,
+      @required this.onCommandUpdated,
+      @required this.availableTypes})
       : super(key: key);
 
   @override
@@ -282,7 +320,7 @@ class CommandEditor extends StatelessWidget {
             "    def apply(state: ${stateType.name}, command: ${commandHandler.commandType.name}): Future[${commandHandler.responseType.name}] = {"
           ].join("\n"),
         ),
-        WritableCodeItem(commandHandler.code,
+        WritableCodeItem(commandHandler.codeBlocks["body"],
             (_, newCode) => _onCommandCodeChanged(newCode)),
         ReadOnlyCodeItem(
           [
@@ -307,23 +345,23 @@ class CommandEditor extends StatelessWidget {
   }
 
   _onCommandCodeChanged(String updatedCode) {
-    onCommandUpdated(commandHandler.withCode(updatedCode));
+    onCommandUpdated(commandHandler..codeBlocks["body"] = updatedCode);
   }
 
-  _onCommandTypeChanged(TypeReference updatedType) {
+  _onCommandTypeChanged(d.TypeReference updatedType) {
     onCommandUpdated(commandHandler.withCommandType(updatedType));
   }
 
-  _onCommandResponseTypeChanged(TypeReference updatedType) {
+  _onCommandResponseTypeChanged(d.TypeReference updatedType) {
     onCommandUpdated(commandHandler.withResponseType(updatedType));
   }
 }
 
 class EventHandlerEditor extends StatelessWidget {
-  final EventHandler eventHandler;
-  final TypeReference stateType;
-  final Function(EventHandler) onEventUpdated;
-  final List<TypeReference> availableTypes;
+  final d.EventSourcedEntity_EventHandler eventHandler;
+  final d.TypeReference stateType;
+  final Function(d.EventSourcedEntity_EventHandler) onEventUpdated;
+  final List<d.TypeReference> availableTypes;
 
   const EventHandlerEditor(
       {Key key,
@@ -354,8 +392,8 @@ class EventHandlerEditor extends StatelessWidget {
             "    def apply(state: ${stateType.name}, event: ${eventHandler.eventType.name}): ${stateType.name} = {"
           ].join("\n"),
         ),
-        WritableCodeItem(
-            eventHandler.code, (_, newCode) => _onEventCodeChanged(newCode)),
+        WritableCodeItem(eventHandler.codeBlocks["body"],
+            (_, newCode) => _onEventCodeChanged(newCode)),
         ReadOnlyCodeItem(
           [
             "    }",
@@ -373,11 +411,11 @@ class EventHandlerEditor extends StatelessWidget {
     );
   }
 
-  _onEventTypeChanged(TypeReference updatedType) {
+  _onEventTypeChanged(d.TypeReference updatedType) {
     onEventUpdated(eventHandler.withEventType(updatedType));
   }
 
   _onEventCodeChanged(String updatedCode) {
-    onEventUpdated(eventHandler.withCode(updatedCode));
+    onEventUpdated(eventHandler..codeBlocks["body"] = updatedCode);
   }
 }

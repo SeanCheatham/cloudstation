@@ -1,23 +1,14 @@
-import 'package:cloudstation/ui/pages/project/project.dart';
-import 'package:cloudstation/ui/pages/project/widgets/project_page_drawer.dart';
+import 'package:cloudstation/modules/app/app_module.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_modular/flutter_modular.dart';
+import 'package:logging/logging.dart';
 
 void main() {
-  runApp(CloudstationApp());
-}
-
-class CloudstationApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CloudStation',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ProjectPage(
-        projectId: "my-cloudstation-app",
-        initialProjectPageId: ProjectPageId.eventSourcedEntities,
-      ),
-    );
-  }
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+  runApp(ModularApp(
+    module: AppModule(),
+  ));
 }

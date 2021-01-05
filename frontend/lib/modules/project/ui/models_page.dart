@@ -1,76 +1,84 @@
-import 'package:cloudstation/logic/project_bloc.dart';
-import 'package:cloudstation/models/model.dart';
+import 'package:cloudstation/models/domain_support.dart';
+import 'package:cloudstation_protocols/generated/domain.pb.dart' as d;
+import 'package:cloudstation_protocols/generated/project.pb.dart' as p;
+import 'package:cloudstation/models/project_state.dart';
 import 'package:cloudstation/ui/widgets/panel.dart';
 import 'package:cloudstation/ui/widgets/scaffolds.dart';
 import 'package:cloudstation/ui/widgets/single_value_form.dart';
 import 'package:cloudstation/ui/widgets/type_chooser.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:cloudstation/models/projects/project_events.dart' as events;
-import 'package:cloudstation/models/projects/project_states.dart' as states;
+import 'package:flutter_modular/flutter_modular.dart';
 
-class ModelsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ProjectBloc, states.ProjectState>(
-      builder: (context, state) => ModelsPageImpl(
-        state: state as states.LoadedProjectState,
-        addEvent: context.watch<ProjectBloc>().add,
-      ),
-    );
-  }
-}
-
-class ModelsPageImpl extends StatefulWidget {
-  final states.LoadedProjectState state;
-  final Function(events.ProjectEvent) addEvent;
-  const ModelsPageImpl({Key key, @required this.state, @required this.addEvent})
+class ModelsPage extends StatefulWidget {
+  final ProjectState state;
+  final Function(dynamic) addEvent;
+  final String selectedModelName;
+  const ModelsPage(
+      {Key key,
+      @required this.state,
+      @required this.addEvent,
+      @required this.selectedModelName})
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _ModelsPageImplState();
+  State<StatefulWidget> createState() => _ModelsPageState();
+
+  d.Model get selectedModel => state.project.models
+      .firstWhere((m) => m.name == selectedModelName, orElse: () => null);
+
+  int get selectedModelIndex {
+    final idx =
+        state.project.models.indexWhere((m) => m.name == selectedModelName);
+    if (idx >= 0) return idx;
+    return null;
+  }
 }
 
-class _ModelsPageImplState extends State<ModelsPageImpl> {
+class _ModelsPageState extends State<ModelsPage> {
   @override
   Widget build(BuildContext context) {
     return LeftRight(
       leftTitle: "Models",
       onNewItem: () {
-        widget.addEvent(events.AddModel());
+        widget.addEvent(p.AddModelCommand());
       },
-      itemCount: widget.state.models.length,
-      itemBuilder: (context, idx) => Text(widget.state.models[idx].name),
+      itemCount: widget.state.project.models.length,
+      itemBuilder: (context, idx) =>
+          Text(widget.state.project.models[idx].name),
       emptySelection: Center(
         child: const Text("Pick a Model"),
       ),
       itemEditorBuilder: (contetext, idx) => _modelEditor(idx),
-      currentIndex: widget.state.selectedModelIndex,
-      itemSelected: (idx) => widget.addEvent(events.SelectModel(idx)),
+      currentIndex: widget.selectedModelIndex,
+      itemSelected: _selectModel,
     );
+  }
+
+  void _selectModel(int idx) {
+    final String name = widget.state.project.models[idx].name;
+    Modular.link.pushNamed("/${widget.state.project.projectId}/models/$name");
   }
 
   Widget _modelEditor(int index) {
     return ModelEditor(
       key: UniqueKey(),
-      initialModel: widget.state.models[widget.state.selectedModelIndex],
+      initialModel: widget.state.project.models[index],
       state: widget.state,
-      onModelUpdated: (updatedModel) => _onModelUpdated(
-        widget.state.models[widget.state.selectedModelIndex],
-        updatedModel,
-      ),
+      onModelUpdated: _onModelUpdated,
     );
   }
 
-  _onModelUpdated(Model originalModel, Model updatedModel) {
-    widget.addEvent(events.UpdateModel(originalModel, updatedModel));
+  _onModelUpdated(d.Model updatedModel) {
+    widget.addEvent(p.UpdateModelCommand()
+      ..originalName = widget.selectedModelName
+      ..updatedModel = updatedModel);
   }
 }
 
 class ModelEditor extends StatelessWidget {
-  final Model initialModel;
-  final states.LoadedProjectState state;
-  final Function(Model) onModelUpdated;
+  final d.Model initialModel;
+  final ProjectState state;
+  final Function(d.Model) onModelUpdated;
 
   const ModelEditor(
       {Key key, this.initialModel, this.state, this.onModelUpdated})
@@ -112,16 +120,15 @@ class ModelEditor extends StatelessWidget {
 
   _onModelRenamed(String newName) {
     onModelUpdated(initialModel.withName(newName));
+    Modular.link.pushNamed("/${state.project.projectId}/models/$newName");
   }
 
-  _onPropertyUpdated(int index, ModelProperty newProperty) {
+  _onPropertyUpdated(int index, d.Model_Property newProperty) {
     onModelUpdated(initialModel..properties[index] = newProperty);
   }
 
   _onPropertyAdded() {
-    onModelUpdated(initialModel
-      ..properties.add(ModelProperty(
-          "newProperty", StaticTypeReference(StaticType.string))));
+    onModelUpdated(initialModel.withNewProperty());
   }
 
   _onPropertyRemoved(int idx) {
@@ -130,9 +137,9 @@ class ModelEditor extends StatelessWidget {
 }
 
 class PropertiesEditor extends StatelessWidget {
-  final List<ModelProperty> properties;
-  final states.LoadedProjectState state;
-  final Function(int, ModelProperty) onPropertyUpdated;
+  final List<d.Model_Property> properties;
+  final ProjectState state;
+  final Function(int, d.Model_Property) onPropertyUpdated;
   final Function() onPropertyAdded;
   final Function(int) onPropertyRemoved;
 
@@ -177,8 +184,8 @@ class PropertiesEditor extends StatelessWidget {
       );
 
   Widget _propertyTypeEditor(int idx) => TypeChooser(
-        availableTypes: state.availableTypes,
-        selectedType: properties[idx].type,
+        availableTypes: state.project.availableTypes,
+        selectedType: properties[idx].typeReference,
         onTypeUpdated: (updatedType) =>
             onPropertyUpdated(idx, properties[idx].withType(updatedType)),
       );

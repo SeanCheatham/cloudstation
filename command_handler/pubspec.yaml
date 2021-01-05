@@ -1,0 +1,13 @@
+name: cloudstation_command_handler
+description: A helper library for handling CloudStation project commands.
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  async: ^2.2.0
+  cloudstation_protocols:
+    path: ../protocols_dart
