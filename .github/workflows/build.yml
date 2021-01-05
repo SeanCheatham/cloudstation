@@ -37,6 +37,8 @@ jobs:
         working-directory: ./frontend
       - run: flutter build linux
         working-directory: ./frontend
+      - run: flutter build web
+        working-directory: ./frontend
 
   build-backend:
     name: Build Backend
