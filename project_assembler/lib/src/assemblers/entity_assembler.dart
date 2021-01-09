@@ -11,7 +11,7 @@ abstract class EntityAssembler {
 
   List<WritableFile> protos(d.Project project) => [
         StringWritableFile(
-            "protocols/models.proto",
+            "./protocols/models.proto",
             [
               "syntax = \"proto3\";",
               "package cloudstation.user;",

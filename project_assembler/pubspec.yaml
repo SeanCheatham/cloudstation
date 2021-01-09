@@ -10,3 +10,6 @@ environment:
 dependencies:
   cloudstation_protocols:
     path: ../protocols_dart
+
+dev_dependencies:
+  test: ^1.15.7

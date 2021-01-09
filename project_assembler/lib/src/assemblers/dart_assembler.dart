@@ -87,6 +87,8 @@ WritableFile mainContents(String entityRegistrationLine) {
       ].join("\n"));
 }
 
+WritableFile entityCodeContents(d.Project project, d.Action action) {}
+
 WritableFile dockerfile() {
   return StringWritableFile(
       "./Dockerfile",
