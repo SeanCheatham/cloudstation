@@ -10,6 +10,7 @@ import "google/api/httpbody.proto";
 import "domain.proto";
 
 package cloudstation.project;
+option java_package = "cloudstation.project";
 
 // Commands and Responses
 message GetProjectCommand {

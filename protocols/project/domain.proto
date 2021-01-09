@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package cloudstation.project;
+option java_package = "cloudstation.project";
 
 message Project {
     string project_id = 1;
@@ -8,6 +9,8 @@ message Project {
     repeated EventSourcedEntity eventSourcedEntities = 3;
     repeated ReplicatedEntity replicatedEntities = 4;
     repeated Action actions = 5;
+
+    ProjectConfiguration projectConfiguration = 6;
 }
 
 message Model {
@@ -57,6 +60,7 @@ message EventSourcedEntity {
     TypeReference stateType = 2;
     repeated EventSourcedEntity.CommandHandler commandHandlers = 3;
     repeated EventSourcedEntity.EventHandler eventHandlers = 4;
+    FrameworkConfiguration entityConfiguration = 5;
 
     message CommandHandler {
         TypeReference commandType = 1;
@@ -74,6 +78,7 @@ message ReplicatedEntity {
     string name = 1;
     ReplicatedData replicatedData = 2;
     repeated CommandHandler commandHandlers = 3;
+    FrameworkConfiguration entityConfiguration = 4;
 
     message CommandHandler {
         TypeReference commandType = 1;
@@ -118,4 +123,34 @@ message Action {
     TypeReference commandType = 2;
     TypeReference responseType = 3;
     map<string, string> codeBlocks = 4;
+    FrameworkConfiguration entityConfiguration = 5;
+}
+
+message ProjectConfiguration {
+    string name = 1;
+    string basePackage = 2;
+}
+
+message FrameworkConfiguration {
+
+    oneof framework {
+        SbtScala sbtScala = 1;
+    }
+
+    message SbtScala {
+        ScalaVersion scalaVersion = 1;
+        repeated SbtDependency sbtDependencies = 2;
+
+        message SbtDependency {
+            string organization = 1;
+            string name = 2;
+            string version = 3;
+            bool isScala = 4;
+        }
+
+        enum ScalaVersion {
+            SCALA_2_12 = 0;
+            SCALA_2_13 = 1;
+        }
+    }
 }
