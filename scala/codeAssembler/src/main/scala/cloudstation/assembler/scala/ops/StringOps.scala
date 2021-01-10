@@ -21,13 +21,17 @@ class StringHelper(val string: String) extends AnyVal {
     string.filter(ValidIdentifierCharacters).uppercaseFirstLetter
 
   def lowercaseFirstLetter: String =
-    (string : Seq[Char]) match {
+    string.toList match {
+      case Nil =>
+        ""
       case head :: tail =>
         new String(Array(head)).toLowerCase ++ tail
     }
 
   def uppercaseFirstLetter: String =
-    (string : Seq[Char]) match {
+    string.toList match {
+      case Nil =>
+        ""
       case head :: tail =>
         new String(Array(head)).toUpperCase ++ tail
     }

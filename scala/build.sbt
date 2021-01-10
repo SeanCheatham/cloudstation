@@ -1,9 +1,6 @@
+import sbt.Keys.scalaVersion
 
 name := "cloudstation-backend"
-
-version := "0.1"
-
-scalaVersion := "2.13.3"
 
 lazy val root =
   Project(id = "root", base = file("."))
@@ -15,10 +12,14 @@ lazy val root =
     .settings(commonSettings)
     .aggregate(
       protos,
+      codeAssembler,
+      projectEntity,
     )
 
 val commonSettings =
   Seq(
+    version := "0.1",
+    scalaVersion := "2.13.3",
     libraryDependencies ++= Seq(Dependencies.logging),
     libraryDependencies ++= Seq(Dependencies.scalaTest),
   )
@@ -41,3 +42,14 @@ lazy val codeAssembler =
     .dependsOn(protos)
     .enablePlugins(AkkaGrpcPlugin)
     .settings(commonSettings: _*)
+
+lazy val projectEntity =
+  project
+    .dependsOn(protos, codeAssembler)
+    .enablePlugins(AkkaGrpcPlugin)
+    .settings(commonSettings: _*)
+    .settings(
+      libraryDependencies ++= Seq(
+        Dependencies.cloudState
+      )
+    )

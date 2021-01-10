@@ -21,7 +21,7 @@ case class ModelsProtoFileAssembler(relativePath: String, project: Project) {
   def modelToMessage(model: Model): String =
     raw"""message ${model.name.toModelName}{
          |   ${model.properties.zipWithIndex.map((propertyLine _).tupled).map(_.indent).mkString("\n")}
-         |""".stripMargin
+         |}""".stripMargin
 
   def propertyLine(property: Model.Property, index: Int): String =
     raw"${property.typeReference.get.toProtoReference} ${property.name.toVariableName} = $index"

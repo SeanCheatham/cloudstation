@@ -3,8 +3,8 @@ package cloudstation.assembler
 import akka.NotUsed
 import akka.stream.scaladsl.{Merge, Source}
 import akka.util.ByteString
-import cloudstation.assembler.scala.ScalaActionAssembler
-import cloudstation.project.{EntityConfiguration, Project}
+import cloudstation.assembler.scala.{ScalaActionAssembler, ScalaEventSourcedEntityAssembler}
+import cloudstation.project.{FrameworkConfiguration, Project}
 
 case class ProjectAssembler(project: Project, version: String) {
   def writableProjects: Source[WritableProject, NotUsed] =
@@ -14,16 +14,25 @@ case class ProjectAssembler(project: Project, version: String) {
       writableActionProjects
     )(Merge(_))
 
-  def writableEventSourcedEntityProjects: Source[WritableProject, NotUsed] = ???
+  def writableEventSourcedEntityProjects: Source[WritableProject, NotUsed] =
+    Source(project.eventSourcedEntities.toList)
+      .map(entity =>
+        entity.frameworkConfiguration.get.framework match {
+          case _: FrameworkConfiguration.Framework.SbtScala =>
+            ScalaEventSourcedEntityAssembler(project, "v1", entity).writableProject
+        }
+      )
 
-  def writableReplicatedEntityProjects: Source[WritableProject, NotUsed] = ???
+  // TODO
+  def writableReplicatedEntityProjects: Source[WritableProject, NotUsed] =
+    Source.empty
 
   def writableActionProjects: Source[WritableProject, NotUsed] =
     Source(project.actions.toList)
       .map(action =>
-        action.entityConfiguration.fold[EntityConfiguration.Language](EntityConfiguration.Language.SCALA)(_.language) match {
-          case EntityConfiguration.Language.SCALA =>
-            ScalaActionAssembler(project, action).writableProject
+        action.frameworkConfiguration.get.framework match {
+          case _: FrameworkConfiguration.Framework.SbtScala =>
+            ScalaActionAssembler(project, "v1", action).writableProject
         }
       )
 }
