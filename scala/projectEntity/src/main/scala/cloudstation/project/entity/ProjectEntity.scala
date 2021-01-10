@@ -3,6 +3,7 @@ package cloudstation.project.entity
 import cloudstation.project._
 import io.cloudstate.javasupport._
 import io.cloudstate.javasupport.eventsourced.{CommandContext, CommandHandler, EventHandler, EventSourcedEntity => CEventSourcedEntity}
+import scalapb.lenses.{Lens, Mutation}
 
 @CEventSourcedEntity(persistenceId = "cloudstation-project")
 class ProjectEntity(@EntityId val entityId: String) {
@@ -31,7 +32,11 @@ class ProjectEntity(@EntityId val entityId: String) {
 
   @EventHandler
   def modelAddedEvent(event: ModelAddedEvent): Unit = {
-    val hydratedModel = event.model.getOrElse(Model.defaultInstance)
+    val model = event.model.getOrElse(Model.defaultInstance)
+    val hydratedModel = model.name match {
+      case "" => model.withName("NewModel")
+      case _ => model
+    }
     state = state.addModels(hydratedModel)
   }
 
@@ -55,8 +60,12 @@ class ProjectEntity(@EntityId val entityId: String) {
 
   @EventHandler
   def modelUpdatedEvent(event: ModelUpdatedEvent): Unit = {
+    val modelWasRenamed = event.updatedModel.exists(_.name != event.originalName)
     val hydratedModel = event.updatedModel.getOrElse(Model.defaultInstance)
     state = state.withModels(state.models.filterNot(_.name == event.originalName) :+ hydratedModel)
+    if (modelWasRenamed) {
+      state = ProjectEntity.remapTypeReferences(state, event.originalName, event.updatedModel.get.name)
+    }
   }
 
   @CommandHandler
@@ -260,5 +269,56 @@ class ProjectEntity(@EntityId val entityId: String) {
   def actionRemovedEvent(event: ActionRemovedEvent): Unit = {
     state = state.withActions(state.actions.filterNot(_.name == event.name))
   }
-  
+
+}
+
+object ProjectEntity {
+  def remapTypeReferences(project: Project, originalModelName: String, updatedModelName: String): Project = {
+    val originalTypeReference = TypeReference().withModel(TypeReference.Model(originalModelName))
+    val updatedTypeReference = TypeReference().withModel(TypeReference.Model(updatedModelName))
+
+    def maybeCorrect(typeReferenceOpt: Option[TypeReference]): Option[TypeReference] =
+      typeReferenceOpt match {
+        case Some(`originalTypeReference`) => Some(updatedTypeReference)
+        case Some(typeReference) if typeReference.reference.isList =>
+          val listRef = TypeReference().getList
+          Some(typeReference.withList(listRef.copy(valueType = maybeCorrect(listRef.valueType))))
+        case Some(typeReference) if typeReference.reference.isMap =>
+          val mapRef = TypeReference().getMap
+          Some(typeReference.withMap(mapRef.copy(keyType = maybeCorrect(mapRef.keyType), valueType = maybeCorrect(mapRef.valueType))))
+        case _ =>
+          typeReferenceOpt
+      }
+
+    def updateModels(lens: Lens[Project, Project]): Mutation[Project] =
+      lens.models.foreach(_.properties.foreach(_.modify(p => p.copy(typeReference = maybeCorrect(p.typeReference)))))
+
+    def updateEventSourcedEntities(lens: Lens[Project, Project]): Mutation[Project] =
+      lens.eventSourcedEntities.foreach(_.modify(entity =>
+        entity
+          .copy(stateType = maybeCorrect(entity.stateType))
+          .withCommandHandlers(entity.commandHandlers.map(c => c.copy(commandType = maybeCorrect(c.commandType), responseType = maybeCorrect(c.responseType))))
+          .withEventHandlers(entity.eventHandlers.map(c => c.copy(eventType = maybeCorrect(c.eventType))))
+      ))
+
+    def updateReplicatedEntities(lens: Lens[Project, Project]): Mutation[Project] =
+      lens.replicatedEntities.foreach(_.modify(entity =>
+        entity
+          .withCommandHandlers(entity.commandHandlers.map(c => c.copy(commandType = maybeCorrect(c.commandType), responseType = maybeCorrect(c.responseType))))
+      ))
+
+    def updateActions(lens: Lens[Project, Project]): Mutation[Project] =
+      lens.actions.foreach(_.modify(entity =>
+        entity
+          .copy(commandType = maybeCorrect(entity.commandType), responseType = maybeCorrect(entity.responseType))
+      ))
+
+    project
+      .update(
+        updateModels,
+        updateEventSourcedEntities,
+        updateReplicatedEntities,
+        updateActions
+      )
+  }
 }
