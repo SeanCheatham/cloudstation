@@ -1,7 +1,7 @@
 package cloudstation.assembler.proto.ops
 
 import cloudstation.assembler.proto.ops.implicits.asTypeReferenceHelper
-import cloudstation.assembler.scala.ops.implicits.asStringHelper
+import cloudstation.assembler.sbtscala.ops.implicits.asStringHelper
 import cloudstation.project.TypeReference.Reference
 import cloudstation.project.{StaticType, TypeReference}
 

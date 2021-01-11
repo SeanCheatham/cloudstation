@@ -1,10 +1,12 @@
-package cloudstation.assembler.scala
+package cloudstation.assembler.sbtscala
 
 import cloudstation.assembler.proto.ActionServiceProtoFileAssembler
 import cloudstation.assembler.{StringWritableFile, WritableFile}
 import cloudstation.project.{Action, FrameworkConfiguration, Project}
 
 case class ScalaActionAssembler(project: Project, version: String, action: Action) extends ScalaEntityAssembler {
+
+  def name: String = action.name
 
   def mainFile: WritableFile =
     StringWritableFile(

@@ -1,4 +1,4 @@
-package cloudstation.assembler.scala
+package cloudstation.assembler.sbtscala
 
 package object ops {
 

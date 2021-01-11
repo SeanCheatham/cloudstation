@@ -1,6 +1,6 @@
 package cloudstation.assembler.proto.ops
 
-import cloudstation.assembler.scala.ops.implicits.asStringHelper
+import cloudstation.assembler.sbtscala.ops.implicits.asStringHelper
 
 import scala.language.implicitConversions
 

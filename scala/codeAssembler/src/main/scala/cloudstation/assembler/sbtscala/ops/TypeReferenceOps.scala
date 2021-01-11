@@ -1,6 +1,6 @@
-package cloudstation.assembler.scala.ops
+package cloudstation.assembler.sbtscala.ops
 
-import cloudstation.assembler.scala.ops.implicits.{asStringHelper, asTypeReferenceHelper}
+import cloudstation.assembler.sbtscala.ops.implicits.{asStringHelper, asTypeReferenceHelper}
 import cloudstation.project.{Project, StaticType, TypeReference}
 
 import scala.language.implicitConversions

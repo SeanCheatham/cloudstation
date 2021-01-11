@@ -3,7 +3,7 @@ package cloudstation.assembler
 import akka.NotUsed
 import akka.stream.scaladsl.{Merge, Source}
 import akka.util.ByteString
-import cloudstation.assembler.scala.{ScalaActionAssembler, ScalaEventSourcedEntityAssembler}
+import cloudstation.assembler.sbtscala.{ScalaActionAssembler, ScalaEventSourcedEntityAssembler}
 import cloudstation.project.{FrameworkConfiguration, Project}
 
 case class ProjectAssembler(project: Project, version: String) {
@@ -37,7 +37,7 @@ case class ProjectAssembler(project: Project, version: String) {
       )
 }
 
-case class WritableProject(files: Source[WritableFile, NotUsed])
+case class WritableProject(name: String, files: Source[WritableFile, NotUsed])
 
 abstract class WritableFile {
   def relativePath: String

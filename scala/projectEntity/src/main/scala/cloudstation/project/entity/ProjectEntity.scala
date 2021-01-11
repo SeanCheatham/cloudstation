@@ -1,9 +1,14 @@
 package cloudstation.project.entity
 
+import akka.actor.ActorSystem
+import cloudstation.assembler.{ProjectAssembler, ProjectBuilder}
 import cloudstation.project._
 import io.cloudstate.javasupport._
 import io.cloudstate.javasupport.eventsourced.{CommandContext, CommandHandler, EventHandler, EventSourcedEntity => CEventSourcedEntity}
 import scalapb.lenses.{Lens, Mutation}
+
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
 
 @CEventSourcedEntity(persistenceId = "cloudstation-project")
 class ProjectEntity(@EntityId val entityId: String) {
@@ -270,9 +275,32 @@ class ProjectEntity(@EntityId val entityId: String) {
     state = state.withActions(state.actions.filterNot(_.name == event.name))
   }
 
+  @CommandHandler
+  def buildCommand(command: BuildCommand, ctx: CommandContext): BuildResponse = {
+    // TODO: Don't block here...somehow
+    val build =
+      Await.result(
+        new ProjectBuilder(state, "v1", ProjectAssembler(state, "v1").writableProjects)(ProjectEntity.system)
+          .buildAndPublish(),
+        5.minutes
+      )
+
+    ctx.emit(ProjectBuiltEvent().withBuild(build))
+    BuildResponse().withBuild(build)
+  }
+
+  @EventHandler
+  def projectBuiltEvent(event: ProjectBuiltEvent): Unit = {
+    state = state.addAllBuilds(event.build)
+  }
+
 }
 
 object ProjectEntity {
+
+  lazy implicit val system: ActorSystem =
+    ActorSystem("project-entity")
+
   def remapTypeReferences(project: Project, originalModelName: String, updatedModelName: String): Project = {
     val originalTypeReference = TypeReference().withModel(TypeReference.Model(originalModelName))
     val updatedTypeReference = TypeReference().withModel(TypeReference.Model(updatedModelName))

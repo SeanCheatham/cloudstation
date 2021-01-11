@@ -1,11 +1,13 @@
-package cloudstation.assembler.scala
+package cloudstation.assembler.sbtscala
 
 import cloudstation.assembler.proto.EventSourcedEntityServiceProtoFileAssembler
-import cloudstation.assembler.scala.ops.implicits.{asStringHelper, asTypeReferenceHelper}
+import cloudstation.assembler.sbtscala.ops.implicits.{asStringHelper, asTypeReferenceHelper}
 import cloudstation.assembler.{StringWritableFile, WritableFile}
 import cloudstation.project.{EventSourcedEntity, FrameworkConfiguration, Project}
 
 case class ScalaEventSourcedEntityAssembler(project: Project, version: String, entity: EventSourcedEntity) extends ScalaEntityAssembler {
+
+  def name: String = entity.name
 
   def mainFile: WritableFile =
     StringWritableFile(

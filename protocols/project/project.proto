@@ -125,36 +125,12 @@ message UpdateActionResponse {
     Result result = 1;
 }
 
-message VerifyCommand {
+message BuildCommand {
     string project_id = 1 [(.cloudstate.entity_key) = true];
-    repeated string eventSourcedEntityNames = 2;
-    repeated string replicatedEntityNames = 3;
-    repeated string actionNames = 4;
-}
-message VerifyResponse {
-    map<string, VerificationResult> eventSourcedEntityVerifications = 1;
-    map<string, VerificationResult> replicatedEntityVerifications = 2;
-    map<string, VerificationResult> actionVerifications = 3;
-    message VerificationResult {
-        bool success = 1;
-        repeated string errors = 2;
-    }
 }
 
-message DeployCommand {
-    string project_id = 1 [(.cloudstate.entity_key) = true];
-    repeated string eventSourcedEntityNames = 2;
-    repeated string replicatedEntityNames = 3;
-    repeated string actionNames = 4;
-}
-message DeployResponse {
-    map<string, DeployResult> eventSourcedEntityResults = 1;
-    map<string, DeployResult> replicatedEntityResults = 2;
-    map<string, DeployResult> actionResults = 3;
-    message DeployResult {
-        bool success = 1;
-        repeated string errors = 2;
-    }
+message BuildResponse {
+    cloudstation.project.BuildSet build = 1;
 }
 
 // Events
@@ -198,6 +174,9 @@ message ActionUpdatedEvent {
     string originalName = 1;
     cloudstation.project.Action action = 2;
 }
+message ProjectBuiltEvent {
+    cloudstation.project.BuildSet build = 1;
+}
 
 
 // Misc
@@ -227,7 +206,6 @@ service ProjectService {
     rpc RemoveAction(RemoveActionCommand) returns (RemoveActionResponse);
     rpc UpdateAction(UpdateActionCommand) returns (UpdateActionResponse);
  
-    rpc Verify(VerifyCommand) returns (VerifyResponse);
-    rpc Deploy(DeployCommand) returns (DeployResponse);
+    rpc Build(BuildCommand) returns (BuildResponse);
 
 }

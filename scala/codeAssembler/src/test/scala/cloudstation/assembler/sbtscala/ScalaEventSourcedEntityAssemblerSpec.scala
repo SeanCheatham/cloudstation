@@ -1,4 +1,4 @@
-package cloudstation.assembler.scala
+package cloudstation.assembler.sbtscala
 
 import cloudstation.assembler.StringWritableFile
 import cloudstation.project.{Model, _}

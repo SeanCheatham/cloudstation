@@ -1,4 +1,4 @@
-package cloudstation.assembler.scala
+package cloudstation.assembler.sbtscala
 
 import akka.stream.scaladsl.Source
 import cloudstation.assembler.proto.ModelsProtoFileAssembler
@@ -6,6 +6,9 @@ import cloudstation.assembler.{EntityAssembler, StringWritableFile, WritableFile
 import cloudstation.project.FrameworkConfiguration
 
 trait ScalaEntityAssembler extends EntityAssembler {
+
+  def name: String
+
   def scalaFrameworkConfiguration: FrameworkConfiguration.SbtScala
 
   def serviceProtoFile: WritableFile
@@ -16,6 +19,7 @@ trait ScalaEntityAssembler extends EntityAssembler {
 
   def writableProject: WritableProject =
     WritableProject(
+      name,
       Source(
         List(
           buildPropertiesFile,
